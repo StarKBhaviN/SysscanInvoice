@@ -54,13 +54,13 @@ function createStyles(
       flexDirection: "row",
     },
     logoBox: {
-      borderWidth: 2,
+      // borderWidth: 2,
       width: 110,
       height: "100%",
       marginRight: 12,
     },
     headingContent: {
-      borderWidth: 2,
+      // borderWidth: 2,
       flexGrow: 1,
     },
   });

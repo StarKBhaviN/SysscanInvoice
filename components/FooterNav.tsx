@@ -1,7 +1,7 @@
 import { useThemeContext } from "@/hooks/useThemeContext";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Route, usePathname, useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { JSX, useEffect, useRef } from "react";
 import {
   Animated,
   Pressable,
@@ -18,10 +18,27 @@ type TabItem = {
   icon: keyof typeof Ionicons.glyphMap;
 };
 
-const TAB_ITEMS: TabItem[] = [
-  { name: "Home", path: "/home/Index", icon: "home" },
-  { name: "Dashboard", path: "/dashboard/Index", icon: "grid" },
-  { name: "Invoice", path: "/invoice/Index", icon: "grid" },
+const TAB_ITEMS = [
+  {
+    name: "Home",
+    path: "/home/Index",
+    icon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+  },
+  {
+    name: "Dashboard",
+    path: "/dashboard/Index",
+    icon: ({ color, size }) => <Feather name="grid" color={color} size={size} />,
+  },
+  {
+    name: "Invoice",
+    path: "/invoice/Index",
+    icon: ({ color, size }) => <MaterialCommunityIcons name="printer" color={color} size={size} />,
+  },
+  {
+    name: "Profile",
+    path: "/profile/Index",
+    icon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
+  },
 ];
 
 export default function FooterNav() {
@@ -51,15 +68,15 @@ export default function FooterNav() {
 
 type TabButtonProps = {
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: (props: { color: string; size: number }) => JSX.Element;
   active: boolean;
   onPress: () => void;
 };
 
+
 function TabButton({ label, icon, active, onPress }: TabButtonProps) {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
-
   const liftAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -72,24 +89,20 @@ function TabButton({ label, icon, active, onPress }: TabButtonProps) {
   }, [active, liftAnimation]);
 
   return (
-    <Pressable style={styles.tabButton} onPress={onPress}>
-      <Animated.View
-        style={[
-          styles.content,
-          active && styles.activeTopBorder,
-          { transform: [{ translateY: liftAnimation }] },
-        ]}
-      >
-        <Ionicons name={icon} size={22} color={active ? "#007aff" : "#888"} />
-        <Text style={active ? styles.activeText : styles.inactiveText}>
-          {label}
-        </Text>
+    <Pressable
+      style={[
+        styles.tabButton,
+        active && { borderTopWidth: 3, borderTopColor: "#007aff" },
+      ]}
+      onPress={onPress}
+    >
+      <Animated.View style={[styles.content, { transform: [{ translateY: liftAnimation }] }]}>
+        {icon({ color: active ? "#007aff" : "#888", size: 22 })}
+        <Text style={active ? styles.activeText : styles.inactiveText}>{label}</Text>
       </Animated.View>
     </Pressable>
   );
 }
-
-// Styles
 
 function createStyles(
   theme: {
@@ -121,7 +134,7 @@ function createStyles(
   tabButton: {
     flex: 1,
     alignItems: "center",
-    maxWidth: 80,
+    maxWidth: 70,
     // borderWidth : 2,
     paddingTop: 4,
   },
