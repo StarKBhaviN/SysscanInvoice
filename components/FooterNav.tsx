@@ -92,12 +92,12 @@ function TabButton({ label, icon, active, onPress }: TabButtonProps) {
     <Pressable
       style={[
         styles.tabButton,
-        active && { borderTopWidth: 3, borderTopColor: "#007aff" },
+        active && { borderTopWidth: 3, borderTopColor: theme.tabIconSelected },
       ]}
       onPress={onPress}
     >
       <Animated.View style={[styles.content, { transform: [{ translateY: liftAnimation }] }]}>
-        {icon({ color: active ? "#007aff" : "#888", size: 22 })}
+        {icon({ color: active ? theme.tabIconSelected : theme.tabIconDefault, size: 22 })}
         <Text style={active ? styles.activeText : styles.inactiveText}>{label}</Text>
       </Animated.View>
     </Pressable>
@@ -146,11 +146,11 @@ function createStyles(
     borderTopColor: "transparent",
   },
   activeTopBorder: {
-    borderTopColor: "#007aff",
+    borderTopColor: theme.tabIconSelected,
     width: "100%",
   },
   activeText: {
-    color: "#007aff",
+    color: theme.headText,
     fontSize: 10,
     marginTop: 4,
   },
