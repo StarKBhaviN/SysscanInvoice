@@ -2,9 +2,10 @@
 import FooterNav from "@/components/FooterNav";
 import Header from "@/components/Header";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import { Slot } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+import { Slot } from "expo-router";
 
 export default function MainLayout() {
   const { theme, colorScheme } = useThemeContext();
@@ -42,7 +43,6 @@ function createStyles(
     },
     content: {
       flex: 1,
-      paddingHorizontal: 16,
     },
   });
 }
