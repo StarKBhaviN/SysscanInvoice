@@ -1,10 +1,13 @@
 import { useThemeContext } from "@/hooks/useThemeContext";
-import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { CompanyDropdownWithChips } from "./ui/CompanySelectionDropdown";
+import { ShowModal } from "./ui/ShowModal";
 
 export default function Header() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -20,16 +23,37 @@ export default function Header() {
         />
       </View>
       <View style={styles.headingContent}>
-        <Text style={{ marginBottom: 2, color: theme.headText, fontSize: 16 }}>
+        <Text
+          style={{
+            marginBottom: 2,
+            color: theme.headText,
+            fontSize: 16,
+          }}
+        >
           SYSSCAN SOFTWARE
         </Text>
-        <Text style={{ marginBottom: 0, color: theme.headText }}>
-          Company Name
-        </Text>
+        <Pressable onPress={() => setIsModalVisible(true)}>
+          <Text style={{ marginBottom: 0, color: theme.headText }}>
+            Company Name
+          </Text>
+        </Pressable>
         <Text style={{ marginBottom: 0, color: theme.headText, fontSize: 10 }}>
           2500 rs
         </Text>
       </View>
+
+      {/* Custom Modal */}
+      <ShowModal
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+        title="Select Company"
+        showSaveBtn={false}
+      >
+        <CompanyDropdownWithChips
+          companies={["Company A", "Company B", "Company C", "Company D"]}
+          onSelectionChange={(selected) => console.log("Selected:", selected)}
+        />
+      </ShowModal>
     </View>
   );
 }
@@ -54,14 +78,26 @@ function createStyles(
       flexDirection: "row",
     },
     logoBox: {
-      // borderWidth: 2,
       width: 110,
       height: "100%",
       marginRight: 12,
     },
     headingContent: {
-      // borderWidth: 2,
       flexGrow: 1,
+    },
+    modalOverlay: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    modalContent: {
+      backgroundColor: "#fff",
+      padding: 20,
+      borderRadius: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      width: "80%",
     },
   });
 }
