@@ -1,5 +1,5 @@
 import { useThemeContext } from "@/hooks/useThemeContext";
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Route, usePathname, useRouter } from "expo-router";
 import React, { JSX, useEffect, useRef } from "react";
 import {
@@ -24,11 +24,11 @@ const TAB_ITEMS = [
     path: "/home/Index",
     icon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
   },
-  {
-    name: "Dashboard",
-    path: "/dashboard/Index",
-    icon: ({ color, size }) => <Feather name="grid" color={color} size={size} />,
-  },
+  // {
+  //   name: "Dashboard",
+  //   path: "/dashboard/Index",
+  //   icon: ({ color, size }) => <Feather name="grid" color={color} size={size} />,
+  // },
   {
     name: "Invoice",
     path: "/invoice/Index",

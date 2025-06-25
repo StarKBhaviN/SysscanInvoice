@@ -43,6 +43,8 @@ function createStyles(
     },
     content: {
       flex: 1,
+      padding : 12,
+      paddingVertical : 6
     },
   });
 }
