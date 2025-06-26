@@ -35,7 +35,7 @@ function createStyles(
     header: {
       borderTopLeftRadius: 8,
       borderTopRightRadius: 8,
-      backgroundColor: colorScheme === "light" ? "#929dae" : "#929dae",
+      backgroundColor: colorScheme === "light" ? "#929dae" : "#193a4d",
       padding: 6,
       paddingHorizontal: 10,
     },

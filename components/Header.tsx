@@ -34,7 +34,7 @@ export default function Header() {
         </Text>
         <Pressable onPress={() => setIsModalVisible(true)}>
           <Text style={{ marginBottom: 0, color: theme.headText }}>
-            Company Name
+            Company Name (Select Company)
           </Text>
         </Pressable>
         <Text style={{ marginBottom: 0, color: theme.headText, fontSize: 10 }}>
