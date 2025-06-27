@@ -38,7 +38,7 @@ export default function Header() {
           </Text>
         </Pressable>
         <Text style={{ marginBottom: 0, color: theme.headText, fontSize: 10 }}>
-          2500 rs
+          2024-25
         </Text>
       </View>
 

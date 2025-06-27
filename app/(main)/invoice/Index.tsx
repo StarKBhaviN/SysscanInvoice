@@ -139,7 +139,7 @@ export default function PrintInvoice() {
   ];
 
   return (
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
       <Text style={styles.headerText}>Print Invoice Page</Text>
       <InvoiceCard title={"INVOICE INFORMATION"}>
         <View style={styles.part}>
@@ -155,12 +155,12 @@ export default function PrintInvoice() {
         <View style={styles.part}>
           <View style={styles.row}>
             <Text style={styles.label}>From</Text>
-            <Text style={{ fontWeight: 700 }}>:</Text>
+            <Text style={{ fontWeight: 700, color : theme.icon }}>:</Text>
             <Text style={styles.value}>25-05-25</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>To</Text>
-            <Text style={{ fontWeight: 700 }}>:</Text>
+            <Text style={{ fontWeight: 700, color : theme.icon }}>:</Text>
             <Text style={styles.value}>25-06-25</Text>
           </View>
         </View>
