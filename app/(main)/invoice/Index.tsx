@@ -140,7 +140,7 @@ export default function PrintInvoice() {
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
-      <Text style={styles.headerText}>Print Invoice Page</Text>
+      <Text style={styles.headerText}>Print & Share</Text>
       <InvoiceCard title={"INVOICE INFORMATION"}>
         <View style={styles.part}>
           <Text style={styles.text}>Print What?</Text>
@@ -252,6 +252,7 @@ function createStyles(
       fontWeight: "bold",
       color: theme.headText || (colorScheme === "dark" ? "#fff" : "#000"),
       marginBottom: 12,
+      textAlign : "center"
     },
     text: {
       color: theme.headText || (colorScheme === "dark" ? "#fff" : "#000"),

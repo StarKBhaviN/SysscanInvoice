@@ -1,5 +1,5 @@
 import { useThemeContext } from "@/hooks/useThemeContext";
-import React from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,6 +13,7 @@ import {
   PieChart,
   ProgressChart,
 } from "react-native-chart-kit";
+import GraphSettings from "./GraphSettings";
 
 interface GraphChartProps {
   title: string;
@@ -27,6 +28,7 @@ export const GraphCharts: React.FC<GraphChartProps> = ({
 }) => {
   const { theme } = useThemeContext();
   const { width: screenWidth } = useWindowDimensions();
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
 
   // Get total labels
   const labelCount = data?.labels?.length ?? 1;
@@ -105,7 +107,20 @@ export const GraphCharts: React.FC<GraphChartProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.header, { color: theme.headText }]}>{title}</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom : 12
+        }}
+      >
+        <Text style={[styles.header, { color: theme.headText }]}>{title}</Text>
+        <GraphSettings
+          setIsModalVisible={setIsSettingsVisible}
+          isModalVisible={isSettingsVisible}
+        />
+      </View>
       {(type === "line" || type === "bar") && calculatedWidth > screenWidth ? (
         <ScrollView
           horizontal
@@ -123,13 +138,13 @@ export const GraphCharts: React.FC<GraphChartProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
     paddingVertical: 8,
-    flex: 1,
+    paddingBottom: 0,
+    // flex: 1,
+    // borderWidth : 2
   },
   header: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 12,
   },
 });
