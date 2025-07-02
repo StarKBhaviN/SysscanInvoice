@@ -3,14 +3,13 @@ import SepratorLine from "@/components/ui/SepratorLine";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Entypo } from "@expo/vector-icons";
-import React from "react";
-import { StyleSheet, TextStyle, View, ViewStyle } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, TextStyle, View, ViewStyle } from "react-native";
 
-export default function Sales() {
-  const { theme, colorScheme } = useThemeContext();
-  const styles = createStyles(theme, colorScheme);
-
-  const salesData = {
+// Dummy data set for all sections
+const dummyGraphData = {
+  "Sales Overview": {
+    title: "Sales Overview",
     labels: [
       "Jan",
       "Feb",
@@ -32,52 +31,75 @@ export default function Sales() {
         ],
       },
     ],
+  },
+  "Sales Summary": {
+    title: "Sales Summary",
+    labels: ["Orders", "Revenue", "Units", "Avg Order Value"],
+    datasets: [{ data: [120, 12000, 3200, 100] }],
+  },
+  "Sales By Product": {
+    title: "Sales By Product",
+    labels: ["Shirts", "Jeans", "Jackets", "Shoes"],
+    datasets: [{ data: [3400, 2200, 1700, 4700] }],
+  },
+  "Sales By Region": {
+    title: "Sales By Region",
+    labels: ["North", "South", "East", "West"],
+    datasets: [{ data: [3000, 2500, 2800, 3200] }],
+  },
+  "Sales By Channel": {
+    title: "Sales By Channel",
+    labels: ["Online", "Retail", "Wholesale"],
+    datasets: [{ data: [5000, 4000, 3000] }],
+  },
+};
+
+export default function Sales() {
+  const { theme, colorScheme } = useThemeContext();
+  const styles = createStyles(theme, colorScheme);
+
+  const [currentSection, setCurrentSection] =
+    useState<keyof typeof dummyGraphData>("Sales Overview");
+
+  const handleReset = () => {
+    setCurrentSection("Sales Overview");
   };
+
   return (
     <View style={styles.page}>
-      <GraphCharts title="Sales Overview" data={salesData} type="line" />
+      <GraphCharts
+        title={dummyGraphData[currentSection].title}
+        data={dummyGraphData[currentSection]}
+        type="line"
+        handleReset={handleReset}
+      />
       <SepratorLine />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}
-      >
-        <SummaryCard
-          theme={theme}
-          title="Sales Summary"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Sales By Product"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Sales By Region"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Sales By Channel"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        {/* Setting icon for time period */}
-      </View>
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          {Object.keys(dummyGraphData)
+            .filter((key) => key !== "Sales Overview")
+            .map((key) => (
+              <SummaryCard
+                key={key}
+                theme={theme}
+                title={key}
+                icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
+                value={"12,000"}
+                unit="rs"
+                onPress={() =>
+                  setCurrentSection(key as keyof typeof dummyGraphData)
+                }
+              />
+            ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -98,12 +120,11 @@ function createStyles(
     page: ViewStyle;
     salesBtn: ViewStyle;
     salesText: TextStyle;
+    resetButton: ViewStyle;
+    resetButtonText: TextStyle;
   }>({
     page: {
       flex: 1,
-      // borderWidth : 2,
-      // padding: 16,
-      // justifyContent: "center",
     },
     salesBtn: {
       borderWidth: 0.5,
@@ -117,6 +138,18 @@ function createStyles(
     salesText: {
       color: colorScheme === "dark" ? theme.icon : "#323232",
     },
+    resetButton: {
+      alignSelf: "flex-end",
+      marginVertical: 12,
+      marginRight: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: theme.tint,
+      borderRadius: 8,
+    },
+    resetButtonText: {
+      color: "#fff",
+      fontWeight: "600",
+    },
   });
 }
-

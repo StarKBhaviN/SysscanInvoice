@@ -3,12 +3,11 @@ import SepratorLine from "@/components/ui/SepratorLine";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Entypo } from "@expo/vector-icons";
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, TextStyle, View, ViewStyle } from "react-native";
 
-export default function Receivables() {
-  const { theme } = useThemeContext();
-  const receivablesData = [
+const dummyReceivablesData = {
+  "Receivables Breakdown": [
     {
       name: "Customers A",
       value: 500,
@@ -37,78 +36,133 @@ export default function Receivables() {
       legendFontColor: "#7F7F7F",
       legendFontSize: 12,
     },
-  ];
+  ],
+  "Total Receivables": [
+    {
+      name: "Pending",
+      value: 12000,
+      color: "#FFA07A",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+  ],
+  "Overdue Receivables": [
+    {
+      name: "Overdue",
+      value: 4500,
+      color: "#FA8072",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+  ],
+  "Paid Receivables": [
+    {
+      name: "Paid",
+      value: 7500,
+      color: "#90EE90",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+  ],
+  "Top Debtors": [
+    {
+      name: "Debtor A",
+      value: 2000,
+      color: "#8A2BE2",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+    {
+      name: "Debtor B",
+      value: 1500,
+      color: "#5F9EA0",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+  ],
+};
+
+export default function Receivables() {
+  const { theme, colorScheme } = useThemeContext();
+  const styles = createStyles(theme, colorScheme);
+  const [currentSection, setCurrentSection] = useState<
+    keyof typeof dummyReceivablesData
+  >("Receivables Breakdown");
+
+  const handleReset = () => {
+    setCurrentSection("Receivables Breakdown");
+  };
 
   return (
     <View style={styles.page}>
       <GraphCharts
-        title="Receivables Breakdown"
-        data={receivablesData}
+        title={currentSection}
+        data={dummyReceivablesData[currentSection]}
         type="pie"
+        handleReset={handleReset}
       />
       <SepratorLine />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}
-      >
-        <SummaryCard
-          theme={theme}
-          title="Total Receivables"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Overdue Receivables"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Paid Receivables"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Top Debtors"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        {/* Setting icon for time period */}
-      </View>
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          {Object.keys(dummyReceivablesData)
+            .filter((key) => key !== "Receivables Breakdown")
+            .map((key) => (
+              <SummaryCard
+                key={key}
+                theme={theme}
+                title={key}
+                icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
+                value="12,000"
+                unit="rs"
+                onPress={() =>
+                  setCurrentSection(key as keyof typeof dummyReceivablesData)
+                }
+              />
+            ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
+function createStyles(
+  theme: {
+    headText?: string;
+    subText?: string;
+    background: any;
+    tint?: string;
+    icon?: string;
+    tabIconDefault?: string;
+    tabIconSelected?: string;
   },
-});
-
-// Field	Description
-// Total Receivables	Outstanding invoices
-// Overdue Receivables	Due past their date
-// Paid Receivables	Amount already paid
-// Receivables Aging	0–30, 31–60, etc.
-// Top Debtors	Clients with most dues
-// Payment Methods	Breakdown by mode (UPI, Cash, etc.)
-
-// Setting	Description
-// Date Range	Invoice issue/due date range
-// Aging Buckets	Toggle buckets (0-30, 31-60…)
-// Client Filter	Search by client name
-// Region Filter	City/State-based filter
-// Payment Status	Paid / Unpaid / Overdue
+  colorScheme: string
+) {
+  return StyleSheet.create<{
+    page: ViewStyle;
+    salesBtn: ViewStyle;
+    salesText: TextStyle;
+  }>({
+    page: {
+      flex: 1,
+    },
+    salesBtn: {
+      borderWidth: 0.5,
+      padding: 12,
+      width: 100,
+      borderRadius: 14,
+      marginBottom: 14,
+      backgroundColor: theme.tint,
+      borderColor: colorScheme === "dark" ? theme.icon : "#323232",
+    },
+    salesText: {
+      color: colorScheme === "dark" ? theme.icon : "#323232",
+    },
+  });
+}

@@ -2,12 +2,15 @@ import { useThemeContext } from "@/hooks/useThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import ChooseDateRange from "../ui/ChooseDateRange";
 
 interface GraphSettingsProps {
   isModalVisible: boolean;
@@ -28,7 +31,11 @@ const GraphSettings: React.FC<GraphSettingsProps> = ({
         style={styles.settingsButton}
         onPress={() => setIsModalVisible(true)}
       >
-        <Ionicons name="settings-outline" size={20} color={theme.headText || "#000"} />
+        <Ionicons
+          name="settings-outline"
+          size={20}
+          color={theme.headText || "#000"}
+        />
       </TouchableOpacity>
 
       {/* Modal */}
@@ -41,10 +48,44 @@ const GraphSettings: React.FC<GraphSettingsProps> = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Graph Settings</Text>
-
-            {/* Your settings controls go here */}
-            <Text style={{ color: theme.subText }}>Coming Soon...</Text>
-
+            <ChooseDateRange />
+            <Text style={styles.label}>Group By</Text>
+            <View style={styles.rowGroup}>
+              <Text style={{ color: theme.headText }}>Monthly</Text>
+              <Switch value={true} onValueChange={() => {}} />
+              <Text style={{ color: theme.headText }}>Yearly</Text>
+            </View>
+            {/* Specific Filters */}
+            <Text style={styles.label}>Vendor Filter</Text>
+            <TextInput
+              placeholder="Select Vendors"
+              style={styles.input}
+              placeholderTextColor={theme.placeholderText}
+            />
+            <Text style={styles.label}>Category Filter</Text>
+            <TextInput
+              placeholder="Raw Material, Services..."
+              style={styles.input}
+              placeholderTextColor={theme.placeholderText}
+            />
+            <Text style={styles.label}>Region Filter</Text>
+            <TextInput
+              placeholder="Enter City/State"
+              style={styles.input}
+              placeholderTextColor={theme.placeholderText}
+            />
+            <Text style={styles.label}>Client Filter</Text>
+            <TextInput
+              placeholder="Search Client Name"
+              style={styles.input}
+              placeholderTextColor={theme.placeholderText}
+            />
+            <Text style={styles.label}>Payment Status</Text>
+            <TextInput
+              placeholder="Paid / Unpaid / Overdue"
+              style={styles.input}
+              placeholderTextColor={theme.placeholderText}
+            />
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setIsModalVisible(false)}
@@ -87,7 +128,7 @@ function createStyles(
       backgroundColor: theme.background,
       padding: 20,
       borderRadius: 12,
-      width: "85%",
+      width: "90%",
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
@@ -99,6 +140,26 @@ function createStyles(
       fontWeight: "bold",
       color: theme.headText,
       marginBottom: 16,
+    },
+    label: {
+      color: theme.headText,
+      fontSize: 14,
+      marginTop: 12,
+    },
+    rowGroup: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginVertical: 8,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: "#ccc",
+      padding: 8,
+      borderRadius: 8,
+      width: "100%",
+      marginTop: 4,
+      color: theme.headText,
     },
     closeButton: {
       marginTop: 24,

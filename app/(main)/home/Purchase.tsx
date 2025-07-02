@@ -3,12 +3,18 @@ import SepratorLine from "@/components/ui/SepratorLine";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Entypo } from "@expo/vector-icons";
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native";
 
-export default function Purchase() {
-  const { theme } = useThemeContext();
-  const purchaseData = {
+const dummyPurchaseData = {
+  "Purchase Overview": {
+    title: "Purchase Overview",
     labels: [
       "Jan",
       "Feb",
@@ -30,83 +36,115 @@ export default function Purchase() {
         ],
       },
     ],
+  },
+  "Total Purchase Amount": {
+    title: "Total Purchase Amount",
+    labels: ["Q1", "Q2", "Q3", "Q4"],
+    datasets: [{ data: [8000, 11000, 9500, 10200] }],
+  },
+  "Average Purchase": {
+    title: "Average Purchase",
+    labels: ["Vendor A", "Vendor B", "Vendor C"],
+    datasets: [{ data: [3500, 2800, 4000] }],
+  },
+  "Vendor Breakdown": {
+    title: "Vendor Breakdown",
+    labels: ["Vendor A", "Vendor B", "Vendor C", "Vendor D"],
+    datasets: [{ data: [5000, 3000, 4000, 2500] }],
+  },
+  "Category Breakdown": {
+    title: "Category Breakdown",
+    labels: ["Raw Material", "Equipment", "Others"],
+    datasets: [{ data: [7000, 4000, 3000] }],
+  },
+  "Returns / Disputes": {
+    title: "Returns / Disputes",
+    labels: ["Jan", "Feb", "Mar", "Apr"],
+    datasets: [{ data: [500, 300, 700, 200] }],
+  },
+};
+
+export default function Purchase() {
+  const { theme, colorScheme } = useThemeContext();
+  const styles = createStyles(theme, colorScheme);
+
+  const [currentSection, setCurrentSection] =
+    useState<keyof typeof dummyPurchaseData>("Purchase Overview");
+
+  const handleReset = () => {
+    setCurrentSection("Purchase Overview");
   };
 
   return (
     <View style={styles.page}>
-      <GraphCharts title="Purchase Overview" data={purchaseData} type="bar" />
+      <GraphCharts
+        title={dummyPurchaseData[currentSection].title}
+        data={dummyPurchaseData[currentSection]}
+        type="bar"
+        handleReset={handleReset}
+      />
       <SepratorLine />
-      {/* Add Number of Purchase Orders in it but it should be expandable and when expanded then show Number of Purchase */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}
-      >
-        <SummaryCard
-          theme={theme}
-          title="Total Purchase Amount"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Average Purchase"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Vendor Breakdown"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Category Breakdown"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <SummaryCard
-          theme={theme}
-          title="Returns / Disputes"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
-          unit="rs"
-          // onPress={() => router.push("/(main)/home/Sales")}
-        />
-      </View>
+
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          {Object.keys(dummyPurchaseData)
+            .filter((key) => key !== "Purchase Overview")
+            .map((key) => (
+              <SummaryCard
+                key={key}
+                theme={theme}
+                title={key}
+                icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
+                value="12,000"
+                unit="rs"
+                onPress={() =>
+                  setCurrentSection(key as keyof typeof dummyPurchaseData)
+                }
+              />
+            ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
+function createStyles(
+  theme: {
+    headText?: string;
+    subText?: string;
+    background: any;
+    tint?: string;
+    icon?: string;
+    tabIconDefault?: string;
+    tabIconSelected?: string;
   },
-});
-
-// Field	Description
-// Total Purchase Amount : Sum of all purchases  *
-// Number of Purchase Orders : Count of entries  *
-// Average Purchase Value	: Avg Total / No. of Orders **
-// Vendor Breakdown	: Vendor-wise purchases ***
-// Category Breakdown	: Material/Service based view ***
-// Purchase Returns / Disputes : Value of returns ****
-
-// GRAPH SETTINGS
-// Date Range	From – To
-// Group By	Day / Week / Month / Year
-// Vendor Filter	Multi-select
-// Category Filter	Raw Material / Equipment / Others
-// Region Filter	Vendor region-wise filtering
-// Purchase Type	Goods / Services
+  colorScheme: string
+) {
+  return StyleSheet.create<{
+    page: ViewStyle;
+    salesBtn: ViewStyle;
+    salesText: TextStyle;
+  }>({
+    page: {
+      flex: 1,
+    },
+    salesBtn: {
+      borderWidth: 0.5,
+      padding: 12,
+      width: 100,
+      borderRadius: 14,
+      marginBottom: 14,
+      backgroundColor: theme.tint,
+      borderColor: colorScheme === "dark" ? theme.icon : "#323232",
+    },
+    salesText: {
+      color: colorScheme === "dark" ? theme.icon : "#323232",
+    },
+  });
+}

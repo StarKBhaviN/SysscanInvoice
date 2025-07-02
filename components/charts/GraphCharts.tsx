@@ -14,17 +14,20 @@ import {
   ProgressChart,
 } from "react-native-chart-kit";
 import GraphSettings from "./GraphSettings";
+import { ResetGraphButton } from "./ResetGraph";
 
 interface GraphChartProps {
   title: string;
   data: any;
   type: "line" | "bar" | "pie" | "progress";
+  handleReset: any;
 }
 
 export const GraphCharts: React.FC<GraphChartProps> = ({
   title,
   data,
   type,
+  handleReset,
 }) => {
   const { theme } = useThemeContext();
   const { width: screenWidth } = useWindowDimensions();
@@ -112,14 +115,17 @@ export const GraphCharts: React.FC<GraphChartProps> = ({
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom : 12
+          marginBottom: 12,
         }}
       >
         <Text style={[styles.header, { color: theme.headText }]}>{title}</Text>
-        <GraphSettings
-          setIsModalVisible={setIsSettingsVisible}
-          isModalVisible={isSettingsVisible}
-        />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <ResetGraphButton onReset={handleReset} />
+          <GraphSettings
+            setIsModalVisible={setIsSettingsVisible}
+            isModalVisible={isSettingsVisible}
+          />
+        </View>
       </View>
       {(type === "line" || type === "bar") && calculatedWidth > screenWidth ? (
         <ScrollView

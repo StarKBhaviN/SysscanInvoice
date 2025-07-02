@@ -10,6 +10,7 @@ export const Colors = {
     icon: 'black',
     tabIconDefault: '#606060',
     tabIconSelected: "black",
+    placeholderText : "grey"
   },
   dark: {
     headText: '#c2c2c2',
@@ -19,5 +20,6 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: "#007aff",
+    placeholderText : "grey"
   },
 };
