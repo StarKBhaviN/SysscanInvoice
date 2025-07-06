@@ -1,6 +1,9 @@
+import { useCompanyContext } from "@/context/companyContext";
+import { useUserContext } from "@/context/userContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import React from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,30 +14,41 @@ import {
 export default function Profile() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
+  const { user } = useUserContext();
+  const { companies } = useCompanyContext();
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Profile Header */}
       <View style={styles.profileHeader}>
         <View style={styles.profileImage}>
+          {user?.profileImage && (
+            <Image
+              source={{
+                uri: "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg",
+              }}
+              style={{ width: 50, height: 50, borderRadius: 25 }}
+            />
+          )}
           <Text>Image</Text>
         </View>
         <View>
-          <Text style={styles.name}>Talia Bhavin</Text>
-          <Text style={styles.role}>Admin</Text>
+          <Text style={styles.name}>{user?.username || "Unknown User"}</Text>
+          <Text style={styles.role}>{user?.role || "No Role Provided"}</Text>
         </View>
       </View>
 
       {/* Company Section */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Your Companies</Text>
-        {["Company A", "Company B", "Company C", "Company D"].map(
-          (name, index) => (
-            <Text key={index} style={styles.cardItem}>
-              {name}
-            </Text>
-          )
-        )}
+        {companies.map((company, index) => (
+          <Text key={index} style={styles.cardItem}>
+            {company.name}
+          </Text>
+        ))}
         <TouchableOpacity style={styles.linkButton}>
           <Text style={styles.linkText}>Manage Companies</Text>
         </TouchableOpacity>
@@ -58,12 +72,19 @@ export default function Profile() {
         <Text style={styles.cardItem}>
           You can add only 4 users in your current plan.
         </Text>
-        <View style={{flexDirection : "row", justifyContent : "space-between", alignItems : "center", flexWrap : "wrap"}}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <View style={styles.userRow}>
             {[...Array(4)].map((_, i) => (
               <View key={i} style={styles.userItem}>
                 <View style={styles.avatar}></View>
-                <Text style={{color : theme.subText}}>User</Text>
+                <Text style={{ color: theme.subText }}>User</Text>
               </View>
             ))}
           </View>
@@ -179,7 +200,7 @@ function createStyles(
       flexWrap: "wrap",
       marginTop: 10,
       justifyContent: "space-between",
-      flex : 0.9,
+      flex: 0.9,
     },
     userItem: {
       alignItems: "center",

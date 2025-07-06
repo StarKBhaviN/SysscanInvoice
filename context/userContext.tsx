@@ -9,6 +9,11 @@ type User = {
   id: number;
   email: string;
   role: string;
+  username?: string;
+  profileImage?: string | null;
+  phoneNumber?: string | null;
+  adminRefID?: number | null;
+  createdAt?: string;
 };
 
 type UserContextType = {
