@@ -1,5 +1,7 @@
+import { useUserContext } from "@/context/userContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,8 +16,14 @@ import {
 
 export default function LoginScreen() {
   const { theme, colorScheme } = useThemeContext();
+  const { login } = useUserContext();
+
   const styles = createStyles(theme, colorScheme);
   const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   return (
     <View style={styles.container}>
       <Text style={styles.mainLabel}>SIGN IN</Text>
@@ -23,7 +31,8 @@ export default function LoginScreen() {
       <View style={styles.inpContainer}>
         <Text style={styles.inpLabel}>User Name</Text>
         <TextInput
-          // onChangeText={(value) => (emailRef.current = value)}
+          value={email}
+          onChangeText={setEmail}
           style={styles.inputs}
           placeholder="Email Address"
           placeholderTextColor="grey"
@@ -33,15 +42,20 @@ export default function LoginScreen() {
       <View style={styles.inpContainer}>
         <Text style={styles.inpLabel}>Password</Text>
         <TextInput
-          // onChangeText={(value) => (emailRef.current = value)}
+          value={password}
+          onChangeText={setPassword}
           style={styles.inputs}
           placeholder="Password"
           placeholderTextColor="grey"
+          secureTextEntry
         />
       </View>
 
       <View style={[styles.inpContainer, { alignItems: "center" }]}>
-        <TouchableOpacity style={styles.signInButton} onPress={() => router.replace("/(main)/home/Index")}>
+        <TouchableOpacity
+          style={styles.signInButton}
+          onPress={() => login(email, password)}
+        >
           <Text style={styles.btnText}>SIGN IN</Text>
         </TouchableOpacity>
 
@@ -102,7 +116,7 @@ function createStyles(
       borderColor: theme.subText,
       borderRadius: 10,
       paddingHorizontal: 12,
-      color: "white",
+      color: theme.subText,
     },
     signInButton: {
       width: wp(50),

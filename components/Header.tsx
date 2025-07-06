@@ -1,3 +1,4 @@
+import { useCompanyContext } from "@/context/companyContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import React, { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -8,6 +9,7 @@ export default function Header() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { companies } = useCompanyContext();
 
   return (
     <View style={styles.container}>
@@ -34,7 +36,7 @@ export default function Header() {
         </Text>
         <Pressable onPress={() => setIsModalVisible(true)}>
           <Text style={{ marginBottom: 0, color: theme.headText }}>
-            Company Name (Select Company)
+            {companies[0]?.name} (Select Company)
           </Text>
         </Pressable>
         <Text style={{ marginBottom: 0, color: theme.headText, fontSize: 10 }}>
@@ -50,7 +52,8 @@ export default function Header() {
         showSaveBtn={false}
       >
         <CompanyDropdownWithChips
-          companies={["Company A", "Company B", "Company C", "Company D"]}
+          // companies={["Company A", "Company B", "Company C", "Company D"]}
+          allCompany={companies}
           onSelectionChange={(selected) => console.log("Selected:", selected)}
         />
       </ShowModal>
