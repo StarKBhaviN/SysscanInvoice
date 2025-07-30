@@ -1,4 +1,3 @@
-// context/UserContext.tsx
 import axios from "@/utils/axiosConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -58,7 +57,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await axios.post("/users/login", { email, password });
       const token = res.data.accessToken;
-
       await AsyncStorage.setItem("Invoice_Token", token);
       setToken(token);
       await userRes(token);
@@ -67,7 +65,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (err: any) {
       const messages = err?.response?.data?.message;
 
-      // Convert array to string if it's an array
       const errorMessage = Array.isArray(messages)
         ? messages.join("\n")
         : messages || "Try again";
@@ -90,7 +87,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Hook to use context
 export const useUserContext = () => {
   const context = useContext(UserContext);
   if (!context) throw new Error("useUserContext must be used inside Provider");

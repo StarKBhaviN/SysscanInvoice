@@ -6,6 +6,7 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { Slot } from "expo-router";
+// import { SQLiteProvider } from "expo-sqlite";
 
 export default function MainLayout() {
   const { theme, colorScheme } = useThemeContext();
@@ -43,8 +44,8 @@ function createStyles(
     },
     content: {
       flex: 1,
-      padding : 12,
-      paddingVertical : 6
+      padding: 12,
+      paddingVertical: 6,
     },
   });
 }

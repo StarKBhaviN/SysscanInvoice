@@ -3,14 +3,7 @@ import { useUserContext } from "@/context/userContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Slot, useRouter } from "expo-router";
 import { useEffect } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Image, ScrollView, StatusBar, StyleSheet, View } from "react-native";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -30,18 +23,18 @@ export default function AuthLayout() {
     }
   }, [token, loading]);
 
-  if (loading || token) {
-    return (
-      <View
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <ActivityIndicator size="large" color={theme.subText || "#000"} />
-      </View>
-    );
-  }
+  // if (loading || !token) {
+  //   return (
+  //     <View
+  //       style={[
+  //         styles.container,
+  //         { justifyContent: "center", alignItems: "center" },
+  //       ]}
+  //     >
+  //       <ActivityIndicator size="large" color={theme.subText || "#000"} />
+  //     </View>
+  //   );
+  // }
   return (
     <SafeAreaProvider>
       <StatusBar
