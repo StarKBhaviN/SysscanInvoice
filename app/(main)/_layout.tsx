@@ -5,8 +5,8 @@ import { useThemeContext } from "@/hooks/useThemeContext";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
+import { SQLiteProvider } from "@/context/SQLiteContext";
 import { Slot } from "expo-router";
-// import { SQLiteProvider } from "expo-sqlite";
 
 export default function MainLayout() {
   const { theme, colorScheme } = useThemeContext();
@@ -15,11 +15,13 @@ export default function MainLayout() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-        <Header />
-        <View style={styles.content}>
-          <Slot />
-        </View>
-        <FooterNav />
+        <SQLiteProvider>
+          <Header />
+          <View style={styles.content}>
+            <Slot />
+          </View>
+          <FooterNav />
+        </SQLiteProvider>
       </SafeAreaView>
     </SafeAreaProvider>
   );

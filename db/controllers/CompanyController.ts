@@ -1,6 +1,9 @@
-export const CompanyController = {
+import type { SQLiteDatabase } from "expo-sqlite";
+import { HomeQueries } from "../sql_queries";
+
+export const CompanyController = (db: SQLiteDatabase) => ({
   async getHome() {
-    const home = "Query From sql_queries.ts";
-    return home;
+    const result = await db.getAllAsync(HomeQueries.getHome);
+    return result;
   },
-};
+});

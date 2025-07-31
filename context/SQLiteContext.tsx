@@ -13,10 +13,7 @@ interface SQLiteContextType {
   db: SQLite.SQLiteDatabase | null;
   isLoading: boolean;
   error: string | null;
-  controllers: {
-    Home: typeof Controllers.Home;
-    Company: typeof Controllers.Company;
-  };
+  controllers: ReturnType<typeof Controllers> | null;
 }
 
 const SQLiteContext = createContext<SQLiteContextType | undefined>(undefined);
@@ -29,6 +26,7 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
   const [db, setDb] = useState<SQLite.SQLiteDatabase | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [controllers, setControllers] = useState<any>(null);
 
   useEffect(() => {
     const initializeDatabase = async () => {
@@ -39,6 +37,8 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
         const databaseInstance = await openDatabase();
         setDb(databaseInstance);
 
+        const instantiatedControllers = Controllers(databaseInstance);
+        setControllers(instantiatedControllers);
         console.log("Database initialized successfully");
       } catch (err) {
         console.error("Database initialization failed:", err);
@@ -83,10 +83,7 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
     db,
     isLoading,
     error,
-    controllers: {
-      Home: createControllerGroupProxy(Controllers.Home),
-      Company: createControllerGroupProxy(Controllers.Company),
-    },
+    controllers,
   };
 
   return (
@@ -96,7 +93,6 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook to use the SQLite context
 export const useSQLite = (): SQLiteContextType => {
   const context = useContext(SQLiteContext);
   if (context === undefined) {
@@ -105,13 +101,11 @@ export const useSQLite = (): SQLiteContextType => {
   return context;
 };
 
-// Optional: Hook for direct database access (if you need the raw db instance)
 export const useSQLiteDB = (): SQLite.SQLiteDatabase | null => {
   const { db } = useSQLite();
   return db;
 };
 
-// Optional: Hook that throws if database is not ready
 export const useSQLiteReady = (): SQLite.SQLiteDatabase => {
   const { db, isLoading, error } = useSQLite();
 

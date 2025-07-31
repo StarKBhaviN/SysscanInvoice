@@ -1,6 +1,6 @@
-import { useCompanyContext } from "@/context/companyContext";
+import { useSQLite } from "@/context/SQLiteContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { CompanyDropdownWithChips } from "./ui/CompanySelectionDropdown";
 import { ShowModal } from "./ui/ShowModal";
@@ -9,7 +9,26 @@ export default function Header() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const { companies } = useCompanyContext();
+  const [companies, setCompanies] = useState([]);
+
+  // In your component
+  const { controllers, isLoading, error } = useSQLite();
+
+  useEffect(() => {
+    if (!isLoading && controllers) {
+      (async () => {
+        try {
+          console.log("This applied");
+          const result = await controllers.Company.getHome();
+          console.log("This done");
+          console.log(result);
+          setCompanies(result);
+        } catch (err) {
+          console.error("handleTest error:", err);
+        }
+      })();
+    }
+  }, [isLoading, controllers]);
 
   return (
     <View style={styles.container}>

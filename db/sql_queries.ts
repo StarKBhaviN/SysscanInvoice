@@ -1,6 +1,6 @@
 export const HomeQueries = {
   getHome: `
-        SELECT * FROM home;
+        SELECT CMP_CD, CMP_NM FROM a_mst_cmp;
     `,
 };
 
