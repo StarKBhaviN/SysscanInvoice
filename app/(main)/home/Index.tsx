@@ -1,9 +1,16 @@
 import { CategoryCard } from "@/components/ui/CategoryCard";
+import { useHomeData } from "@/hooks/useHomeData";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Entypo, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, View, ViewStyle } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
 import HomeSummary from "./_components/HomeSummary";
 
 export default function Home() {
@@ -11,6 +18,29 @@ export default function Home() {
   const styles = createStyles(theme, colorScheme);
   const router = useRouter();
 
+  const { calculatedSalesValue, isFetching, fetchError } = useHomeData();
+
+  if (isFetching) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.icon} />
+      </View>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={{ color: "red" }}>
+          Error fetching data:{" "}
+          {fetchError instanceof Error ? fetchError.message : fetchError}
+        </Text>
+      </View>
+    );
+  }
+
+  const formattedSalesValue =
+    calculatedSalesValue.totalSales.toLocaleString("en-IN");
   return (
     <View style={styles.homePage}>
       <HomeSummary />
@@ -26,7 +56,7 @@ export default function Home() {
           theme={theme}
           title="Sales"
           icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value="12,000"
+          value={formattedSalesValue}
           unit="rs"
           onPress={() => router.push("/(main)/home/Sales")}
         />
@@ -73,10 +103,18 @@ function createStyles(
 ) {
   return StyleSheet.create<{
     homePage: ViewStyle;
+    loadingContainer: ViewStyle;
+    errorContainer: ViewStyle;
   }>({
     homePage: {
       flex: 1,
       paddingVertical: 8,
+    },
+    loadingContainer: {
+      borderWidth: 1,
+    },
+    errorContainer: {
+      borderWidth: 1,
     },
   });
 }

@@ -5,6 +5,7 @@ import { useThemeContext } from "@/hooks/useThemeContext";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
+import { CompanyProvider } from "@/context/companyContext";
 import { SQLiteProvider } from "@/context/SQLiteContext";
 import { Slot } from "expo-router";
 
@@ -16,11 +17,13 @@ export default function MainLayout() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <SQLiteProvider>
-          <Header />
-          <View style={styles.content}>
-            <Slot />
-          </View>
-          <FooterNav />
+          <CompanyProvider>
+            <Header />
+            <View style={styles.content}>
+              <Slot />
+            </View>
+            <FooterNav />
+          </CompanyProvider>
         </SQLiteProvider>
       </SafeAreaView>
     </SafeAreaProvider>
