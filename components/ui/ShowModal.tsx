@@ -8,6 +8,7 @@ interface ShowModalProps {
   children: ReactNode;
   title?: string;
   showSaveBtn?: boolean;
+  handleSaveChanges?: () => void;
 }
 
 export const ShowModal: React.FC<ShowModalProps> = ({
@@ -16,6 +17,7 @@ export const ShowModal: React.FC<ShowModalProps> = ({
   children,
   title,
   showSaveBtn,
+  handleSaveChanges,
 }) => {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
@@ -48,11 +50,8 @@ export const ShowModal: React.FC<ShowModalProps> = ({
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
             {showSaveBtn && (
-              <Pressable
-                style={styles.closeButton}
-                onPress={() => setIsModalVisible(false)}
-              >
-                <Text style={styles.closeButtonText}>Save</Text>
+              <Pressable style={styles.saveButton} onPress={handleSaveChanges}>
+                <Text style={styles.saveButtonText}>Save</Text>
               </Pressable>
             )}
           </View>
@@ -109,6 +108,17 @@ function createStyles(
     },
     closeButtonText: {
       color: theme.headText || "#fff",
+      fontWeight: "600",
+      fontSize: 16,
+    },
+    saveButton: {
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 8,
+      backgroundColor: "#63bf3c",
+    },
+    saveButtonText: {
+      color: "#000",
       fontWeight: "600",
       fontSize: 16,
     },

@@ -1,35 +1,40 @@
-import { useSQLite } from "@/context/SQLiteContext";
+import { useCompanyContext } from "@/context/companyContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { CompanyDropdownWithChips } from "./ui/CompanySelectionDropdown";
+import {
+  Company,
+  CompanyDropdownWithChips,
+} from "./ui/CompanySelectionDropdown";
 import { ShowModal } from "./ui/ShowModal";
 
 export default function Header() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [companies, setCompanies] = useState([]);
 
-  // In your component
-  const { controllers, isLoading, error } = useSQLite();
+  const { selectedCompanies, companies, setSelectedCompanies } =
+    useCompanyContext();
+
+  const [tempSelectedCompanies, setTempSelectedCompanies] =
+    useState<Company[]>(selectedCompanies);
 
   useEffect(() => {
-    if (!isLoading && controllers) {
-      (async () => {
-        try {
-          console.log("This applied");
-          const result = await controllers.Company.getHome();
-          console.log("This done");
-          console.log(result);
-          setCompanies(result);
-        } catch (err) {
-          console.error("handleTest error:", err);
-        }
-      })();
+    if (isModalVisible) {
+      setTempSelectedCompanies(selectedCompanies);
     }
-  }, [isLoading, controllers]);
+  }, [isModalVisible, selectedCompanies]);
 
+  const handleTempSelectionChange = (newSelected: Company[]) => {
+    setTempSelectedCompanies(newSelected);
+  };
+
+  const handleSaveChanges = () => {
+    setSelectedCompanies(tempSelectedCompanies);
+    setIsModalVisible(false);
+  };
+
+  const selectedCompanyName = selectedCompanies[0]?.CMP_NM;
   return (
     <View style={styles.container}>
       <View style={styles.logoBox}>
@@ -55,7 +60,7 @@ export default function Header() {
         </Text>
         <Pressable onPress={() => setIsModalVisible(true)}>
           <Text style={{ marginBottom: 0, color: theme.headText }}>
-            {companies[0]?.name} (Select Company)
+            {selectedCompanyName || "No Company Selected"} (Select Company)
           </Text>
         </Pressable>
         <Text style={{ marginBottom: 0, color: theme.headText, fontSize: 10 }}>
@@ -63,17 +68,17 @@ export default function Header() {
         </Text>
       </View>
 
-      {/* Custom Modal */}
       <ShowModal
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         title="Select Company"
-        showSaveBtn={false}
+        showSaveBtn={true}
+        handleSaveChanges={() => handleSaveChanges()}
       >
         <CompanyDropdownWithChips
-          // companies={["Company A", "Company B", "Company C", "Company D"]}
           allCompany={companies}
-          onSelectionChange={(selected) => console.log("Selected:", selected)}
+          selectedCompanies={tempSelectedCompanies}
+          onSelectionChange={handleTempSelectionChange}
         />
       </ShowModal>
     </View>

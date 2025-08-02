@@ -1,82 +1,45 @@
-import axios from "@/utils/axiosConfig";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAlert } from "./alertContext";
-import { useUserContext } from "./userContext";
+import { Company } from "@/components/ui/CompanySelectionDropdown";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useSQLite } from "./SQLiteContext";
 
-type Company = {
-  id: number;
-  name: string;
-  address: string;
-  createdAt: string;
-  userID: number;
-};
-
-type CompanyContextType = {
+interface CompanyContextType {
+  selectedCompanies: Company[];
+  setSelectedCompanies: (companies: Company[]) => void;
   companies: Company[];
-  fetchCompanies: () => Promise<void>;
-  createCompany: (data: Partial<Company>) => Promise<void>;
-  loading: boolean;
-};
+}
 
 const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
 
-export const CompanyProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const CompanyProvider = ({ children }: { children: ReactNode }) => {
+  const [selectedCompanies, setSelectedCompanies] = useState<Company[]>([]);
+
+  const { controllers, isLoading } = useSQLite();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { token, user } = useUserContext();
-  const { showAlert } = useAlert();
-
-  const fetchCompanies = async () => {
-    if (!token || !user) return;
-
-    try {
-      setLoading(true);
-      const resp = await axios.get("/companies/" + user.id, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setCompanies(resp.data);
-    } catch (error) {
-      showAlert("Error", "Could not fetch companies");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createCompany = async (data: Partial<Company>) => {
-    if (!token) return;
-
-    try {
-      setLoading(true);
-      const res = await axios.post("/company", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setCompanies((prev) => [...prev, res.data]); // Add to list
-    } catch (err: any) {
-      console.error("Error creating company:", err);
-      showAlert("Error", "Could not create company");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (token && user) {
-      fetchCompanies();
+    if (!isLoading && controllers) {
+      (async () => {
+        try {
+          const result: any = await controllers.Company.getHome();
+          setCompanies(result);
+          if (result.length > 0) {
+            setSelectedCompanies([result[0]]);
+          }
+        } catch (err) {
+          console.error("handleTest error:", err);
+        }
+      })();
     }
-  }, [token, user]);
+  }, [isLoading, controllers]);
 
   return (
     <CompanyContext.Provider
-      value={{ companies, fetchCompanies, createCompany, loading }}
+      value={{ selectedCompanies, setSelectedCompanies, companies }}
     >
       {children}
     </CompanyContext.Provider>
@@ -85,7 +48,8 @@ export const CompanyProvider = ({
 
 export const useCompanyContext = () => {
   const context = useContext(CompanyContext);
-  if (!context)
-    throw new Error("useCompanyContext must be used inside Provider");
+  if (context === undefined) {
+    throw new Error("useCompanyContext must be used within a CompanyProvider");
+  }
   return context;
 };

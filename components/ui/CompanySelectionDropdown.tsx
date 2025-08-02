@@ -2,34 +2,30 @@ import { useThemeContext } from "@/hooks/useThemeContext";
 import React, { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-interface Company {
-  id: number;
-  name: string;
-  address: string;
-  createdAt: string;
-  userID: number;
+export interface Company {
+  CMP_CD: string;
+  CMP_NM: string;
 }
 
 interface CompanyDropdownWithChipsProps {
   allCompany: Company[];
+  selectedCompanies: Company[];
   onSelectionChange?: (selected: Company[]) => void;
 }
 
 export const CompanyDropdownWithChips: React.FC<
   CompanyDropdownWithChipsProps
-> = ({ allCompany, onSelectionChange }) => {
+> = ({ allCompany, selectedCompanies, onSelectionChange }) => {
   const { theme } = useThemeContext();
-  const [selected, setSelected] = useState<Company[]>([]);
   const [showDropdown, setShowDropdown] = useState(true);
 
   const toggleSelection = (company: Company) => {
     let updated: Company[];
-    if (selected.find((c) => c.id === company.id)) {
-      updated = selected.filter((c) => c.id !== company.id);
+    if (selectedCompanies.find((c) => c.CMP_CD === company.CMP_CD)) {
+      updated = selectedCompanies.filter((c) => c.CMP_CD !== company.CMP_CD);
     } else {
-      updated = [...selected, company];
+      updated = [...selectedCompanies, company];
     }
-    setSelected(updated);
     onSelectionChange?.(updated);
   };
   return (
@@ -42,22 +38,22 @@ export const CompanyDropdownWithChips: React.FC<
         onPress={() => setShowDropdown(!showDropdown)}
       >
         <Text style={{ color: theme.headText }}>
-          {selected.length >= 0
-            ? `${selected.length} Compan${
-                selected.length > 1 ? "ies" : "y"
+          {selectedCompanies.length >= 0
+            ? `${selectedCompanies.length} Compan${
+                selectedCompanies.length > 1 ? "ies" : "y"
               } Selected`
             : "Select Company"}
         </Text>
       </Pressable>
 
-      {selected.length > 0 && (
+      {selectedCompanies.length > 0 && (
         <View style={styles.chipsContainer}>
-          {selected.map((company) => (
+          {selectedCompanies.map((company) => (
             <View
-              key={company.id}
+              key={company.CMP_CD}
               style={[styles.chip, { backgroundColor: theme.tint }]}
             >
-              <Text style={{ color: theme.headText }}>{company.name}</Text>
+              <Text style={{ color: theme.headText }}>{company.CMP_NM}</Text>
               <Pressable
                 style={styles.chipClose}
                 onPress={() => toggleSelection(company)}
@@ -72,10 +68,12 @@ export const CompanyDropdownWithChips: React.FC<
       {showDropdown && (
         <FlatList
           data={allCompany}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.CMP_CD.toString()}
           style={styles.list}
           renderItem={({ item }) => {
-            const isSelected = selected.some((c) => c.id === item.id);
+            const isSelected = selectedCompanies.some(
+              (c) => c.CMP_CD === item.CMP_CD
+            );
             return (
               <Pressable
                 style={[
@@ -91,7 +89,7 @@ export const CompanyDropdownWithChips: React.FC<
                     color: isSelected ? theme.headText : theme.subText,
                   }}
                 >
-                  {item.name}
+                  {item.CMP_NM}
                 </Text>
               </Pressable>
             );
