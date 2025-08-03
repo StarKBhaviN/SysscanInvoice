@@ -1,5 +1,3 @@
-// hooks/useHomeData.ts
-
 import { useCompanyContext } from "@/context/companyContext";
 import { useSQLite } from "@/context/SQLiteContext";
 import { HomeData, UseHomeDataResult } from "@/types/home.types";

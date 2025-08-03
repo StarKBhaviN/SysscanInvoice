@@ -33,10 +33,8 @@ export const GraphCharts: React.FC<GraphChartProps> = ({
   const { width: screenWidth } = useWindowDimensions();
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
 
-  // Get total labels
   const labelCount = data?.labels?.length ?? 1;
 
-  // Dynamic chart width:
   const calculatedWidth = Math.max(screenWidth, labelCount * 60);
 
   const chartCommonProps = {
@@ -146,8 +144,6 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
     paddingBottom: 0,
-    // flex: 1,
-    // borderWidth : 2
   },
   header: {
     fontSize: 18,

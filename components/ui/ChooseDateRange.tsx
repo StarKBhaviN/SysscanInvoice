@@ -32,7 +32,6 @@ export default function ChooseDateRange() {
 
   const applyRange = (range: string) => {
     setSelectedRange(range);
-    // Add actual range calculations if needed
   };
 
   const openDatePicker = (targetField: "start" | "end") => {
@@ -55,7 +54,7 @@ export default function ChooseDateRange() {
   const onDateChange = (event: DateTimePickerEvent, selected?: Date) => {
     setIsPicking(false);
     if (selected && target) {
-      const formattedDate = selected.toLocaleDateString("en-GB"); // DD/MM/YY
+      const formattedDate = selected.toLocaleDateString("en-GB");
       if (target === "start") {
         setStartDate(formattedDate);
       } else {
@@ -123,7 +122,6 @@ export default function ChooseDateRange() {
               />
             )}
 
-            {/* On Submit it should check that "from" date is not bigger then "to" date */}
             <Button title="Done" onPress={() => setModalVisible(false)} />
           </View>
         </View>

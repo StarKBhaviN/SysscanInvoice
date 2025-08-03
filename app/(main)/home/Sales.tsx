@@ -4,9 +4,14 @@ import { SummaryCard } from "@/components/ui/SummaryCard";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Entypo } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, TextStyle, View, ViewStyle } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native";
 
-// Dummy data set for all sections
 const dummyGraphData = {
   "Sales Overview": {
     title: "Sales Overview",

@@ -1,4 +1,3 @@
-// hooks/useHomeDataQuery.ts
 import { useCompanyContext } from "@/context/companyContext";
 import { useSQLite } from "@/context/SQLiteContext";
 import { HomeData } from "@/types/home.types";
@@ -11,7 +10,7 @@ export const useHomeDataQuery = () => {
   const companyCodes = selectedCompanies.map((company) => company.CMP_CD);
 
   return useQuery({
-    queryKey: ["homeData", companyCodes.sort()], // Sort to ensure consistent key
+    queryKey: ["homeData", companyCodes.sort()],
     queryFn: async (): Promise<HomeData> => {
       if (!controllers || companyCodes.length === 0) {
         throw new Error("No controllers or companies available");
@@ -26,8 +25,8 @@ export const useHomeDataQuery = () => {
       };
     },
     enabled: !!controllers && companyCodes.length > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false, // Don't refetch when returning to the screen
-    refetchOnMount: false, // Don't refetch on component mount if data is fresh
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };

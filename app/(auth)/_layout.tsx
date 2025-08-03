@@ -48,9 +48,6 @@ export default function AuthLayout() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.headingIcon}>
-            {/* <Text style={{ color: "white", fontSize: 20 }}>
-              SYSSCAN SOFTWARE
-            </Text> */}
             <View style={{ marginTop: 14, height: hp(22), width: wp(100) }}>
               <Image
                 style={{
@@ -90,7 +87,6 @@ function createStyles(
       flex: 1,
     },
     bottomBar: {
-      // height: hp(55),
       borderRadius: 24,
       backgroundColor: theme.tint,
       borderBottomLeftRadius: 0,

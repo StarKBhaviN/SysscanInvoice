@@ -48,22 +48,18 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
       try {
-        // 1. Fetch all available companies from the database.
         const allCompaniesResult: any =
           await controllers.Company.getHeaderCompanyData();
         setCompanies(allCompaniesResult);
 
-        // 2. Load the user's last selection from persistent storage.
         const storedCompaniesJson = await AsyncStorage.getItem(
           SELECTED_COMPANIES_STORAGE_KEY
         );
 
         if (storedCompaniesJson) {
-          // If a selection was saved, use it.
           const storedCompanies = JSON.parse(storedCompaniesJson);
           setSelectedCompaniesState(storedCompanies);
         } else if (allCompaniesResult.length > 0) {
-          // If no selection was saved (e.g., first launch), default to the first company.
           setSelectedCompaniesState([allCompaniesResult[0]]);
         }
       } catch (err) {
@@ -80,10 +76,8 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
 
   const setSelectedCompanies = async (newSelectedCompanies: Company[]) => {
     try {
-      // Update the state in memory for immediate UI feedback.
       setSelectedCompaniesState(newSelectedCompanies);
 
-      // Persist the new selection to storage.
       const jsonValue = JSON.stringify(newSelectedCompanies);
       await AsyncStorage.setItem(SELECTED_COMPANIES_STORAGE_KEY, jsonValue);
     } catch (err) {
