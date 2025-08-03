@@ -60,25 +60,6 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
     };
   }, []);
 
-  const createControllerGroupProxy = (controllerGroup: any) => {
-    const proxy = {} as any;
-
-    Object.keys(controllerGroup).forEach((functionName) => {
-      const originalFunction = controllerGroup[functionName];
-
-      if (typeof originalFunction === "function") {
-        proxy[functionName] = (async (...args: any[]) => {
-          if (!db) {
-            throw new Error("Database not initialized");
-          }
-          return await originalFunction(db, ...args);
-        }) as any;
-      }
-    });
-
-    return proxy;
-  };
-
   const contextValue: SQLiteContextType = {
     db,
     isLoading,

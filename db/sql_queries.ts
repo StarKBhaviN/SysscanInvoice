@@ -1,27 +1,24 @@
-export type SalesQueries = {
-  testSales: string;
-  getHomeSales: string;
-  getTopSellingItems: string;
-};
+import {
+  HomeQueries,
+  PayablesQueries,
+  PurchaseQueries,
+  ReceivablesQueries,
+  SalesQueries,
+} from "@/types/queries.types";
 
-export const HomeQueries = {
-  getHome: `
-        SELECT CMP_CD, CMP_NM FROM a_mst_cmp;
-    `,
-};
+export const getHeaderCompanyDataQuery = `
+  SELECT CMP_CD, CMP_NM FROM a_mst_cmp;
+`;
 
-export const getSalesQuery = (
+export const getHomeQueries = (
   selectedCompanyCodes: string[]
-): SalesQueries | null => {
+): HomeQueries | null => {
   if (selectedCompanyCodes.length === 0) {
     return null;
   }
   const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
   return {
-    testSales: `
-    SELECT CMP_CD, TYP FROM a_trn_spr WHERE CMP_CD IN (${codes}) LIMIT 5;
-  `,
-    getHomeSales: `
+    getAllHomeData: `
       SELECT 
         TYP,
         COUNT(BILL_NO_SNC_N),
@@ -33,39 +30,65 @@ export const getSalesQuery = (
       WHERE 
         CMP_CD in (${codes})
         AND CMP_FY='2425'
-        AND TYP IN ('SAL','EXP','GSL','JWI') 
         AND BILL_TYP IN ('FINAL') 
-      GROUP BY TYP
-    `,
-    getTopSellingItems: `
-      SELECT 
-        ITEM_CD,
-        COUNT(BILL_NO_SNC_N),
-        Sum(QTY1),
-        Sum(QTY3),
-        Sum(NET_AMT)
-      FROM 
-        a_trn_spr 
-      WHERE 
-        CMP_CD='A04'
-        AND CMP_FY='2425'
-        AND TYP IN ('SAL','EXP','GSL','JWI') 
-        AND BILL_TYP IN ('FINAL') 
-      GROUP BY ITEM_CD
-      ORDER BY COUNT(BILL_NO_SNC_N) DESC
-      LIMIT 5
+      GROUP BY
+        TYP
     `,
   };
 };
 
-export const PurchaseQueries = {
-  getPurchase: `
-        SELECT * FROM purchase;
+export const getSalesQuery = (
+  selectedCompanyCodes: string[]
+): SalesQueries | null => {
+  if (selectedCompanyCodes.length === 0) {
+    return null;
+  }
+  const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
+  return {
+    getHomeSales: `
+      QUERY:: Receivables query
     `,
+  };
 };
 
-export const InventoryQueries = {
-  getInventory: `
-        SELECT * FROM inventory;
+export const getPurchaseQuery = (
+  selectedCompanyCodes: string[]
+): PurchaseQueries | null => {
+  if (selectedCompanyCodes.length === 0) {
+    return null;
+  }
+  const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
+  return {
+    getHomePurchase: `
+      QUERY:: Receivables query
     `,
+  };
+};
+
+export const getReceivablesQuery = (
+  selectedCompanyCodes: string[]
+): ReceivablesQueries | null => {
+  if (selectedCompanyCodes.length === 0) {
+    return null;
+  }
+  const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
+  return {
+    getHomeReceivables: `
+      QUERY:: Receivables query
+    `,
+  };
+};
+
+export const getPayablesQuery = (
+  selectedCompanyCodes: string[]
+): PayablesQueries | null => {
+  if (selectedCompanyCodes.length === 0) {
+    return null;
+  }
+  const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
+  return {
+    getHomePayables: `
+      QUERY:: Payables query
+    `,
+  };
 };

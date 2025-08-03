@@ -85,7 +85,7 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
             <ScrollView horizontal>
               <FlatList
                 data={data}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => index?.toString()}
                 nestedScrollEnabled
                 style={styles.tableContainer}
                 renderItem={({ item, index }) => {
