@@ -101,7 +101,6 @@ const GraphSettings: React.FC<GraphSettingsProps> = ({
 
 export default GraphSettings;
 
-// --- Styles ---
 function createStyles(
   theme: {
     headText?: string;

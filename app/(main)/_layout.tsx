@@ -1,4 +1,3 @@
-// app/(main)/_layout.tsx
 import FooterNav from "@/components/FooterNav";
 import Header from "@/components/Header";
 import { useThemeContext } from "@/hooks/useThemeContext";
@@ -17,7 +16,7 @@ export default function MainLayout() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 5 * 60 * 1000,
       },
     },
   });

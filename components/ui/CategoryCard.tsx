@@ -1,12 +1,6 @@
+import { useThemeContext } from "@/hooks/useThemeContext";
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TextStyle,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface TransactionData {
   "COUNT(BILL_NO_SNC_N)": number;
@@ -38,6 +32,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   unit,
   onPress,
 }) => {
+  const { colorScheme } = useThemeContext();
+  const styles = createStyles(colorScheme);
   return (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: theme.tint }]}
@@ -101,52 +97,44 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create<{
-  card: ViewStyle;
-  headerRow: ViewStyle;
-  left: ViewStyle;
-  valueRow: ViewStyle;
-  title: TextStyle;
-  value: TextStyle;
-  unit: TextStyle;
-  themeText: TextStyle;
-}>({
-  card: {
-    borderRadius: 12,
-    padding: 14,
-    // flex: 1,
-    width: "48%",
-    marginBottom: 15,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-    minHeight: 40,
-  },
-  left: {
-    flex: 0.9,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    flexShrink: 1,
-  },
-  valueRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginBottom: 8,
-  },
-  value: {
-    fontSize: 16,
-    marginRight: 6,
-    fontWeight: "900",
-  },
-  unit: {
-    fontSize: 16,
-  },
-  themeText: {
-    color: "#8E8E8E",
-  },
-});
+function createStyles(colorScheme: string) {
+  return StyleSheet.create({
+    card: {
+      borderRadius: 12,
+      padding: 14,
+      width: "48%",
+      marginBottom: 15,
+    },
+    headerRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 8,
+      minHeight: 40,
+    },
+    left: {
+      flex: 0.9,
+    },
+    title: {
+      fontSize: 17,
+      fontWeight: "bold",
+      flexShrink: 1,
+    },
+    valueRow: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      marginBottom: 8,
+    },
+    value: {
+      fontSize: 16,
+      marginRight: 6,
+      fontWeight: "900",
+    },
+    unit: {
+      fontSize: 16,
+    },
+    themeText: {
+      color: colorScheme === "dark" ? "#8E8E8E" : "#505050ff",
+    },
+  });
+}

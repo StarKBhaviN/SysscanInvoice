@@ -121,7 +121,6 @@ function createStyles(
     },
     signInButton: {
       width: wp(50),
-      // flex : 1,
       padding: 5,
       alignItems: "center",
       justifyContent: "center",

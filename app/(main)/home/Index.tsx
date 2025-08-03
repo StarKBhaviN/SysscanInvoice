@@ -1,110 +1,14 @@
 import { CategoryCard } from "@/components/ui/CategoryCard";
+import { CategoryCardSkeleton } from "@/components/ui/CategoryCardSkeleton";
+import HomeSummarySkeleton from "@/components/ui/HomeSummarySkeleton";
+import { displayConfig } from "@/context/displayConfig";
 import { useHomeDataQuery } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { AllInOneRecord } from "@/types/home.types";
-import { Entypo, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import HomeSummary from "./_components/HomeSummary";
-
-type IconName =
-  | React.ComponentProps<typeof Entypo>["name"]
-  | React.ComponentProps<typeof Feather>["name"];
-
-type DisplayConfigItem = {
-  type: string;
-  name: string;
-  IconComponent: typeof Entypo | typeof Feather;
-  iconName: IconName; // This ensures only valid icon names are used.
-};
-
-const displayConfig: DisplayConfigItem[] = [
-  // Row 1
-  { type: "SAL", name: "Sales", IconComponent: Entypo, iconName: "bar-graph" },
-  { type: "PUR", name: "Purchase", IconComponent: Entypo, iconName: "layers" },
-  // Row 2
-  {
-    type: "Receivables",
-    name: "Receivables",
-    IconComponent: Feather,
-    iconName: "arrow-down-left",
-  },
-  {
-    type: "Payables",
-    name: "Payables",
-    IconComponent: Feather,
-    iconName: "arrow-up-right",
-  },
-  // Row 3
-  {
-    type: "JWI",
-    name: "Job Work Income",
-    IconComponent: Entypo,
-    iconName: "briefcase",
-  },
-  {
-    type: "JWP",
-    name: "Job Work Payment",
-    IconComponent: Entypo,
-    iconName: "tools",
-  },
-  // Row 4
-  // { type: "EXD", name: "Exports", IconComponent: Entypo, iconName: "globe" },
-  { type: "GSL", name: "General Sale", IconComponent: Entypo, iconName: "tag" },
-  {
-    type: "GEN",
-    name: "General Purchase",
-    IconComponent: Entypo,
-    iconName: "archive",
-  },
-  // Row 5
-  {
-    type: "SRT",
-    name: "Sales Return",
-    IconComponent: Feather,
-    iconName: "corner-up-left",
-  },
-  {
-    type: "PDN",
-    name: "Purchase Return",
-    IconComponent: Feather,
-    iconName: "corner-up-right",
-  },
-  // Row 6
-  {
-    type: "CRN",
-    name: "Credit Note",
-    IconComponent: Entypo,
-    iconName: "file-minus",
-  },
-  {
-    type: "DBN",
-    name: "Debit Note",
-    IconComponent: Entypo,
-    iconName: "file-plus",
-  },
-  // Other categories
-  {
-    type: "CGR",
-    name: "Credit Note (Gen)",
-    IconComponent: Entypo,
-    iconName: "file-minus",
-  },
-  {
-    type: "DGR",
-    name: "Debit Note (Gen)",
-    IconComponent: Entypo,
-    iconName: "file-plus",
-  },
-];
 
 export default function Home() {
   const { theme, colorScheme } = useThemeContext();
@@ -113,11 +17,9 @@ export default function Home() {
 
   const {
     data: homeData,
-    // calculatedSalesValue,
-    // calculatedPurchaseValue,
     isLoading: isFetching,
     error: fetchError,
-    refetch, // For manual refresh if needed
+    // refetch, // For manual refresh if needed
   } = useHomeDataQuery();
 
   const categoriesToDisplay = useMemo(() => {
@@ -155,11 +57,21 @@ export default function Home() {
     });
   }, [homeData]);
 
-  console.log("This ", categoriesToDisplay);
   if (isFetching) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.icon} />
+      <View style={styles.homePage}>
+        <HomeSummarySkeleton />
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
+          {[0, 1, 2, 3].map((index) => (
+            <CategoryCardSkeleton key={index} />
+          ))}
+        </View>
       </View>
     );
   }
@@ -178,6 +90,7 @@ export default function Home() {
   return (
     <View style={styles.homePage}>
       <HomeSummary />
+
       <ScrollView>
         <View
           style={{
@@ -231,6 +144,7 @@ function createStyles(
     },
     loadingContainer: {
       borderWidth: 1,
+      flex: 1,
     },
     errorContainer: {
       borderWidth: 1,

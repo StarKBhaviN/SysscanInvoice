@@ -5,7 +5,7 @@ import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
 
 interface ResetGraphButtonProps {
   onReset: () => void;
-  size?: number; // optional size of icon
+  size?: number;
 }
 
 export const ResetGraphButton: React.FC<ResetGraphButtonProps> = ({
@@ -28,7 +28,7 @@ const styles = StyleSheet.create<{
     padding: 6,
     marginHorizontal: 6,
     borderRadius: 50,
-    backgroundColor: "transparent", // can be theme.tint if background needed
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },

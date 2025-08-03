@@ -233,11 +233,3 @@ function createStyles(
     },
   });
 }
-
-// Profile : Photo, Name, Role (Admin adds numbers they can use the app per user charge also there)
-// Company : Show Number of companies (OnClick : Show the list of companies and default selection)
-// Subscription time reamining, Payment history, Pay for subscription
-// Notifications
-// User add and delete (Only can be added by admin)
-// Developer information and contact us
-// Refresh backend data button : Sync Data

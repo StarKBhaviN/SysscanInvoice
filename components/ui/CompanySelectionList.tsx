@@ -1,5 +1,5 @@
 import { useThemeContext } from "@/hooks/useThemeContext";
-import Checkbox from "expo-checkbox"; // Install: `npx expo install expo-checkbox`
+import Checkbox from "expo-checkbox";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -20,14 +20,12 @@ export const CompanySelectionList: React.FC<CompanySelectionListProps> = ({
     setSelected(updated);
     onSelectionChange?.(Object.keys(updated).filter((k) => updated[k]));
   };
-  
+
   return (
     <View>
       {companies.map((name) => (
         <View key={name} style={styles.item}>
-          <Text style={[styles.label, { color: theme.headText }]}>
-            {name}
-          </Text>
+          <Text style={[styles.label, { color: theme.headText }]}>{name}</Text>
           <Checkbox
             value={!!selected[name]}
             onValueChange={() => toggleSelection(name)}

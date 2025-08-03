@@ -111,11 +111,11 @@ function createStyles(
       paddingVertical: 10,
       paddingHorizontal: 20,
       borderRadius: 8,
-      backgroundColor: colorScheme === "dark" ? "rgb(78, 141, 84)" : "#4CAF50", // green
+      backgroundColor: colorScheme === "dark" ? "rgb(78, 141, 84)" : "#4CAF50",
       marginHorizontal: 5,
     },
     cancelButton: {
-      backgroundColor: colorScheme === "dark" ? "rgb(141, 78, 78)" : "#f44336", // red
+      backgroundColor: colorScheme === "dark" ? "rgb(141, 78, 78)" : "#f44336",
     },
     buttonText: {
       color: "#fff",

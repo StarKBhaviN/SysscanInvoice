@@ -22,22 +22,23 @@ const TAB_ITEMS = [
   {
     name: "Home",
     path: "/home/Index",
-    icon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+    icon: ({ color, size }) => (
+      <Ionicons name="home" color={color} size={size} />
+    ),
   },
-  // {
-  //   name: "Dashboard",
-  //   path: "/dashboard/Index",
-  //   icon: ({ color, size }) => <Feather name="grid" color={color} size={size} />,
-  // },
   {
     name: "Invoice",
     path: "/invoice/Index",
-    icon: ({ color, size }) => <MaterialCommunityIcons name="printer" color={color} size={size} />,
+    icon: ({ color, size }) => (
+      <MaterialCommunityIcons name="printer" color={color} size={size} />
+    ),
   },
   {
     name: "Profile",
     path: "/profile/Index",
-    icon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
+    icon: ({ color, size }) => (
+      <Ionicons name="person" color={color} size={size} />
+    ),
   },
 ];
 
@@ -73,7 +74,6 @@ type TabButtonProps = {
   onPress: () => void;
 };
 
-
 function TabButton({ label, icon, active, onPress }: TabButtonProps) {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
@@ -96,9 +96,16 @@ function TabButton({ label, icon, active, onPress }: TabButtonProps) {
       ]}
       onPress={onPress}
     >
-      <Animated.View style={[styles.content, { transform: [{ translateY: liftAnimation }] }]}>
-        {icon({ color: active ? theme.tabIconSelected : theme.tabIconDefault, size: 22 })}
-        <Text style={active ? styles.activeText : styles.inactiveText}>{label}</Text>
+      <Animated.View
+        style={[styles.content, { transform: [{ translateY: liftAnimation }] }]}
+      >
+        {icon({
+          color: active ? theme.tabIconSelected : theme.tabIconDefault,
+          size: 22,
+        })}
+        <Text style={active ? styles.activeText : styles.inactiveText}>
+          {label}
+        </Text>
       </Animated.View>
     </Pressable>
   );
@@ -117,46 +124,44 @@ function createStyles(
   colorScheme: string
 ) {
   return StyleSheet.create<{
-  footer: ViewStyle;
-  tabButton: ViewStyle;
-  content: ViewStyle;
-  activeTopBorder: ViewStyle;
-  activeText: TextStyle;
-  inactiveText: TextStyle;
-}>({
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: 20,
-    backgroundColor: theme.tint,
-    borderTopColor: "#ccc",
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: "center",
-    maxWidth: 70,
-    // borderWidth : 2,
-    paddingTop: 4,
-  },
-  content: {
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 5,
-    borderTopWidth: 3,
-    borderTopColor: "transparent",
-  },
-  activeTopBorder: {
-    borderTopColor: theme.tabIconSelected,
-    width: "100%",
-  },
-  activeText: {
-    color: theme.headText,
-    fontSize: 10,
-    marginTop: 4,
-  },
-  inactiveText: {
-    display: "none",
-  },
-});
+    footer: ViewStyle;
+    tabButton: ViewStyle;
+    content: ViewStyle;
+    activeTopBorder: ViewStyle;
+    activeText: TextStyle;
+    inactiveText: TextStyle;
+  }>({
+    footer: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      paddingHorizontal: 20,
+      backgroundColor: theme.tint,
+      borderTopColor: "#ccc",
+    },
+    tabButton: {
+      flex: 1,
+      alignItems: "center",
+      maxWidth: 70,
+      paddingTop: 4,
+    },
+    content: {
+      alignItems: "center",
+      paddingVertical: 8,
+      paddingHorizontal: 5,
+      borderTopWidth: 3,
+      borderTopColor: "transparent",
+    },
+    activeTopBorder: {
+      borderTopColor: theme.tabIconSelected,
+      width: "100%",
+    },
+    activeText: {
+      color: theme.headText,
+      fontSize: 10,
+      marginTop: 4,
+    },
+    inactiveText: {
+      display: "none",
+    },
+  });
 }
-

@@ -2,6 +2,7 @@ import { useCompanyContext } from "@/context/companyContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { widthPercentageToDP } from "react-native-responsive-screen";
 import {
   Company,
   CompanyDropdownWithChips,
@@ -59,8 +60,18 @@ export default function Header() {
           SYSSCAN SOFTWARE
         </Text>
         <Pressable onPress={() => setIsModalVisible(true)}>
-          <Text style={{ marginBottom: 0, color: theme.headText }}>
-            {selectedCompanyName || "No Company Selected"} (Select Company)
+          <Text
+            style={{
+              marginBottom: 4,
+              color: theme.headText,
+            }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {tempSelectedCompanies.length > 1
+              ? "Multiple"
+              : selectedCompanyName || "No Company Selected"}{" "}
+            <Text style={{ color: "#a1a1a1ff" }}>(Select Company)</Text>
           </Text>
         </Pressable>
         <Text style={{ marginBottom: 0, color: theme.headText, fontSize: 10 }}>
@@ -103,6 +114,7 @@ function createStyles(
       height: 80,
       padding: 10,
       flexDirection: "row",
+      maxWidth: widthPercentageToDP(100),
     },
     logoBox: {
       width: 110,
@@ -111,6 +123,7 @@ function createStyles(
     },
     headingContent: {
       flexGrow: 1,
+      width: "0%",
     },
     modalOverlay: {
       flex: 1,

@@ -155,12 +155,12 @@ export default function PrintInvoice() {
         <View style={styles.part}>
           <View style={styles.row}>
             <Text style={styles.label}>From</Text>
-            <Text style={{ fontWeight: 700, color : theme.icon }}>:</Text>
+            <Text style={{ fontWeight: 700, color: theme.icon }}>:</Text>
             <Text style={styles.value}>25-05-25</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>To</Text>
-            <Text style={{ fontWeight: 700, color : theme.icon }}>:</Text>
+            <Text style={{ fontWeight: 700, color: theme.icon }}>:</Text>
             <Text style={styles.value}>25-06-25</Text>
           </View>
         </View>
@@ -243,7 +243,6 @@ function createStyles(
     headerText: TextStyle;
   }>({
     part: {
-      // borderWidth: 2,
       width: "49%",
       marginBottom: 8,
     },
@@ -252,7 +251,7 @@ function createStyles(
       fontWeight: "bold",
       color: theme.headText || (colorScheme === "dark" ? "#fff" : "#000"),
       marginBottom: 12,
-      textAlign : "center"
+      textAlign: "center",
     },
     text: {
       color: theme.headText || (colorScheme === "dark" ? "#fff" : "#000"),
