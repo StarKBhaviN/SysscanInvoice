@@ -36,6 +36,7 @@ export default function Header() {
   };
 
   const selectedCompanyName = selectedCompanies[0]?.CMP_NM;
+
   return (
     <View style={styles.container}>
       <View style={styles.logoBox}>
@@ -68,7 +69,9 @@ export default function Header() {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {tempSelectedCompanies.length > 1
+            {selectedCompanies.length === companies.length
+              ? "All Companies"
+              : selectedCompanies.length > 1
               ? "Multiple"
               : selectedCompanyName || "No Company Selected"}{" "}
             <Text style={{ color: "#a1a1a1ff" }}>(Select Company)</Text>

@@ -1,15 +1,20 @@
 import { Entypo, Feather } from "@expo/vector-icons";
 
-type IconName =
-  | React.ComponentProps<typeof Entypo>["name"]
-  | React.ComponentProps<typeof Feather>["name"];
-
-type DisplayConfigItem = {
+type EntypoConfig = {
   type: string;
   name: string;
-  IconComponent: typeof Entypo | typeof Feather;
-  iconName: IconName;
+  IconComponent: typeof Entypo;
+  iconName: React.ComponentProps<typeof Entypo>["name"];
 };
+
+type FeatherConfig = {
+  type: string;
+  name: string;
+  IconComponent: typeof Feather;
+  iconName: React.ComponentProps<typeof Feather>["name"];
+};
+
+type DisplayConfigItem = EntypoConfig | FeatherConfig;
 
 export const displayConfig: DisplayConfigItem[] = [
   // Row 1

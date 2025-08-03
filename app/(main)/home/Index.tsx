@@ -5,7 +5,7 @@ import { displayConfig } from "@/context/displayConfig";
 import { useHomeDataQuery } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { AllInOneRecord } from "@/types/home.types";
-import { useRouter } from "expo-router";
+import { RelativePathString, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import HomeSummary from "./_components/HomeSummary";
@@ -101,6 +101,7 @@ export default function Home() {
         >
           {categoriesToDisplay.map((cat) => {
             const { IconComponent, iconName, data } = cat;
+            const path = `/(main)/home/${cat.name}` as RelativePathString;
             return (
               <CategoryCard
                 key={cat.name}
@@ -111,7 +112,7 @@ export default function Home() {
                 icon={
                   <IconComponent name={iconName} size={24} color={theme.icon} />
                 }
-                onPress={() => router.push(`/(main)/home/${cat.name}`)}
+                onPress={() => router.push(path)}
               />
             );
           })}
