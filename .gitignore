@@ -41,3 +41,4 @@ app-example
 *.db
 assets/*.db-shm
 assets/*.db-wal
+help.txt

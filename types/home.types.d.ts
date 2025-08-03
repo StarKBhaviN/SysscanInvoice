@@ -8,12 +8,36 @@ export type SalesSummaryRecord = {
   "Sum(QTY3)": number;
   TYP: string;
 };
+export type PurchaseSummaryRecord = {
+  "COUNT(BILL_NO_SNC_N)": number;
+  "Sum(NET_AMT)": number;
+  "Sum(QTY1)": number;
+  "Sum(QTY3)": number;
+  TYP: string;
+};
 
 export type AggregatedSales = {
   totalSales: number;
   totalGSL: number;
   totalJWI: number;
-  // Add other types as needed
+  grandTotal: number;
+};
+
+export type AggregatedPurchase = {
+  totalPurchase: number;
+  totalJWP: number;
+  grandTotal: number;
+};
+
+export type AggregatedReceivables = {
+  totalReceivables: number;
+  // totalJWP: number;
+  grandTotal: number;
+};
+
+export type AggregatedPayables = {
+  totalPayables: number;
+  // totalJWP: number;
   grandTotal: number;
 };
 
@@ -25,14 +49,24 @@ export type CategoryData = {
 
 // Define the shape of all the data fetched for the home screen
 export type HomeData = {
-  sales: any[]; // Assuming 'sales' is an array of objects
-  totalSales: SalesSummaryRecord[];
+  // totalSales: SalesSummaryRecord[];
+  // totalPurchase: PurchaseSummaryRecord[];
+  allInOneHome: AllInOneRecord[];
+};
+
+export type AllInOneRecord = {
+  "COUNT(BILL_NO_SNC_N)": number;
+  "Sum(NET_AMT)": number;
+  "Sum(QTY1)": number;
+  "Sum(QTY3)": number;
+  TYP: string;
 };
 
 // Define the return type of our custom hook
 export type UseHomeDataResult = {
   homeData: HomeData | null;
-  calculatedSalesValue: AggregatedSales;
+  // calculatedSalesValue: AggregatedSales;
+  // calculatedPurchaseValue: AggregatedPurchase;
   isFetching: boolean;
   fetchError: Error | null | string;
 };

@@ -8,6 +8,14 @@ import {
   ViewStyle,
 } from "react-native";
 
+interface TransactionData {
+  "COUNT(BILL_NO_SNC_N)": number;
+  "Sum(NET_AMT)": number;
+  "Sum(QTY1)": number;
+  "Sum(QTY3)": number;
+  TYP: string;
+}
+
 interface CategoryCardProps {
   theme: {
     background: string;
@@ -17,7 +25,7 @@ interface CategoryCardProps {
   };
   title: string;
   icon?: React.ReactNode;
-  value: string;
+  data: TransactionData;
   unit: string;
   onPress?: () => void;
 }
@@ -26,9 +34,9 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   theme,
   title,
   icon,
-  value,
+  data,
   unit,
-  onPress
+  onPress,
 }) => {
   return (
     <TouchableOpacity
@@ -39,6 +47,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       <View style={styles.headerRow}>
         <View style={styles.left}>
           <Text style={[styles.title, { color: theme.headText }]}>{title}</Text>
+          <Text style={styles.themeText}>
+            Bills :{" "}
+            <Text style={{ color: theme.headText }}>
+              {data["COUNT(BILL_NO_SNC_N)"]}
+            </Text>
+          </Text>
         </View>
         <View
           style={{
@@ -54,8 +68,34 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         </View>
       </View>
       <View style={styles.valueRow}>
-        <Text style={[styles.value, { color: theme.headText }]}>{value}</Text>
+        <Text style={[styles.value, { color: theme.headText }]}>
+          {data["Sum(NET_AMT)"].toLocaleString("en-IN")}
+        </Text>
         <Text style={[styles.unit, { color: theme.subText }]}>{unit}</Text>
+      </View>
+      <View style={[styles.valueRow, { marginBottom: 0 }]}>
+        <View
+          style={{
+            flexDirection: "column",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <View style={{ flexDirection: "row", gap: 6 }}>
+            <Text style={styles.themeText}>QTY-1</Text>
+            <Text style={styles.themeText}>:</Text>
+            <Text style={{ color: theme.headText }}>
+              {data["Sum(QTY1)"].toLocaleString("en-IN")}
+            </Text>
+          </View>
+          <View style={{ flexDirection: "row", gap: 6 }}>
+            <Text style={styles.themeText}>QTY-3</Text>
+            <Text style={styles.themeText}>:</Text>
+            <Text style={{ color: theme.headText }}>
+              {data["Sum(QTY3)"].toLocaleString("en-IN")}
+            </Text>
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -69,6 +109,7 @@ const styles = StyleSheet.create<{
   title: TextStyle;
   value: TextStyle;
   unit: TextStyle;
+  themeText: TextStyle;
 }>({
   card: {
     borderRadius: 12,
@@ -81,25 +122,31 @@ const styles = StyleSheet.create<{
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 8,
     minHeight: 40,
   },
   left: {
     flex: 0.9,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
+    flexShrink: 1,
   },
   valueRow: {
     flexDirection: "row",
     alignItems: "flex-end",
+    marginBottom: 8,
   },
   value: {
-    fontSize: 22,
+    fontSize: 16,
     marginRight: 6,
+    fontWeight: "900",
   },
   unit: {
-    fontSize: 18,
+    fontSize: 16,
+  },
+  themeText: {
+    color: "#8E8E8E",
   },
 });

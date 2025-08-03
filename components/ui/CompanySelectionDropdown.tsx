@@ -68,7 +68,7 @@ export const CompanyDropdownWithChips: React.FC<
       {showDropdown && (
         <FlatList
           data={allCompany}
-          keyExtractor={(item) => item.CMP_CD.toString()}
+          keyExtractor={(item) => item?.CMP_CD?.toString()}
           style={styles.list}
           renderItem={({ item }) => {
             const isSelected = selectedCompanies.some(

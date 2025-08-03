@@ -1,11 +1,13 @@
 import { CategoryCard } from "@/components/ui/CategoryCard";
-import { useHomeData } from "@/hooks/useHomeData";
+import { useHomeDataQuery } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
+import { AllInOneRecord } from "@/types/home.types";
 import { Entypo, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -13,13 +15,147 @@ import {
 } from "react-native";
 import HomeSummary from "./_components/HomeSummary";
 
+type IconName =
+  | React.ComponentProps<typeof Entypo>["name"]
+  | React.ComponentProps<typeof Feather>["name"];
+
+type DisplayConfigItem = {
+  type: string;
+  name: string;
+  IconComponent: typeof Entypo | typeof Feather;
+  iconName: IconName; // This ensures only valid icon names are used.
+};
+
+const displayConfig: DisplayConfigItem[] = [
+  // Row 1
+  { type: "SAL", name: "Sales", IconComponent: Entypo, iconName: "bar-graph" },
+  { type: "PUR", name: "Purchase", IconComponent: Entypo, iconName: "layers" },
+  // Row 2
+  {
+    type: "Receivables",
+    name: "Receivables",
+    IconComponent: Feather,
+    iconName: "arrow-down-left",
+  },
+  {
+    type: "Payables",
+    name: "Payables",
+    IconComponent: Feather,
+    iconName: "arrow-up-right",
+  },
+  // Row 3
+  {
+    type: "JWI",
+    name: "Job Work Income",
+    IconComponent: Entypo,
+    iconName: "briefcase",
+  },
+  {
+    type: "JWP",
+    name: "Job Work Payment",
+    IconComponent: Entypo,
+    iconName: "tools",
+  },
+  // Row 4
+  // { type: "EXD", name: "Exports", IconComponent: Entypo, iconName: "globe" },
+  { type: "GSL", name: "General Sale", IconComponent: Entypo, iconName: "tag" },
+  {
+    type: "GEN",
+    name: "General Purchase",
+    IconComponent: Entypo,
+    iconName: "archive",
+  },
+  // Row 5
+  {
+    type: "SRT",
+    name: "Sales Return",
+    IconComponent: Feather,
+    iconName: "corner-up-left",
+  },
+  {
+    type: "PDN",
+    name: "Purchase Return",
+    IconComponent: Feather,
+    iconName: "corner-up-right",
+  },
+  // Row 6
+  {
+    type: "CRN",
+    name: "Credit Note",
+    IconComponent: Entypo,
+    iconName: "file-minus",
+  },
+  {
+    type: "DBN",
+    name: "Debit Note",
+    IconComponent: Entypo,
+    iconName: "file-plus",
+  },
+  // Other categories
+  {
+    type: "CGR",
+    name: "Credit Note (Gen)",
+    IconComponent: Entypo,
+    iconName: "file-minus",
+  },
+  {
+    type: "DGR",
+    name: "Debit Note (Gen)",
+    IconComponent: Entypo,
+    iconName: "file-plus",
+  },
+];
+
 export default function Home() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const router = useRouter();
 
-  const { calculatedSalesValue, isFetching, fetchError } = useHomeData();
+  const {
+    data: homeData,
+    // calculatedSalesValue,
+    // calculatedPurchaseValue,
+    isLoading: isFetching,
+    error: fetchError,
+    refetch, // For manual refresh if needed
+  } = useHomeDataQuery();
 
+  const categoriesToDisplay = useMemo(() => {
+    if (!homeData?.allInOneHome) return [];
+
+    const dataMap = new Map<string, AllInOneRecord>(
+      homeData.allInOneHome.map((item) => [item.TYP, item])
+    );
+
+    const defaultRecord: Omit<AllInOneRecord, "TYP"> = {
+      "COUNT(BILL_NO_SNC_N)": 0,
+      "Sum(NET_AMT)": 0,
+      "Sum(QTY1)": 0,
+      "Sum(QTY3)": 0,
+    };
+
+    return displayConfig.map((config) => {
+      let record: AllInOneRecord;
+
+      if (config.type === "Receivables") {
+        record = { ...defaultRecord, TYP: config.name, "Sum(NET_AMT)": 1500 };
+      } else if (config.type === "Payables") {
+        record = { ...defaultRecord, TYP: config.name, "Sum(NET_AMT)": 500 };
+      } else {
+        record = dataMap.get(config.type) || {
+          ...defaultRecord,
+          TYP: config.type,
+        };
+      }
+
+      return {
+        ...config,
+        data: record,
+      };
+    });
+  }, [homeData]);
+
+  console.log("This ", categoriesToDisplay);
   if (isFetching) {
     return (
       <View style={styles.loadingContainer}>
@@ -39,52 +175,35 @@ export default function Home() {
     );
   }
 
-  const formattedSalesValue =
-    calculatedSalesValue.totalSales.toLocaleString("en-IN");
   return (
     <View style={styles.homePage}>
       <HomeSummary />
-
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}
-      >
-        <CategoryCard
-          theme={theme}
-          title="Sales"
-          icon={<Entypo name="bar-graph" size={24} color={theme.icon} />}
-          value={formattedSalesValue}
-          unit="rs"
-          onPress={() => router.push("/(main)/home/Sales")}
-        />
-        <CategoryCard
-          theme={theme}
-          title="Purchase"
-          icon={<Entypo name="layers" size={24} color={theme.icon} />}
-          value="Value"
-          unit="Value"
-          onPress={() => router.push("/(main)/home/Purchase")}
-        />
-        <CategoryCard
-          theme={theme}
-          title="Receivables"
-          icon={<Feather name="arrow-down-left" size={24} color={theme.icon} />}
-          value="1500"
-          unit="rs"
-          onPress={() => router.push("/(main)/home/Receivables")}
-        />
-        <CategoryCard
-          theme={theme}
-          title="Payables"
-          icon={<Feather name="arrow-up-right" size={24} color={theme.icon} />}
-          value="500"
-          unit="rs"
-          onPress={() => router.push("/(main)/home/Payables")}
-        />
-      </View>
+      <ScrollView>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          {categoriesToDisplay.map((cat) => {
+            const { IconComponent, iconName, data } = cat;
+            return (
+              <CategoryCard
+                key={cat.name}
+                theme={theme}
+                title={cat.name}
+                unit="rs"
+                data={data}
+                icon={
+                  <IconComponent name={iconName} size={24} color={theme.icon} />
+                }
+                onPress={() => router.push(`/(main)/home/${cat.name}`)}
+              />
+            );
+          })}
+        </View>
+      </ScrollView>
     </View>
   );
 }
