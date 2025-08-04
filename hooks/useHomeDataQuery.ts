@@ -1,6 +1,6 @@
 import { useCompanyContext } from "@/context/companyContext";
 import { useSQLite } from "@/context/SQLiteContext";
-import { HomeData } from "@/types/home.types";
+import { HomeData, HomeDetailRecord } from "@/types/home.types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useHomeDataQuery = () => {
@@ -28,5 +28,28 @@ export const useHomeDataQuery = () => {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+  });
+};
+
+export const useHomeDetailsQuery = (typ: string) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((company) => company.CMP_CD);
+
+  return useQuery({
+    queryKey: ["homeDetails", companyCodes.sort(), typ],
+
+    queryFn: async (): Promise<HomeDetailRecord[]> => {
+      if (!controllers || companyCodes.length === 0 || !typ) {
+        return [];
+      }
+
+      const details = await controllers.Home.getDetailsByTyp(companyCodes, typ);
+      return details as HomeDetailRecord[];
+    },
+
+    enabled: !!controllers && companyCodes.length > 0 && !!typ,
+
+    staleTime: 5 * 60 * 1000,
   });
 };

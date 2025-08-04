@@ -62,6 +62,15 @@ export type AllInOneRecord = {
   TYP: string;
 };
 
+export type HomeDetailRecord = {
+  BILL_NO_SNC_N: string;
+  PartyName: string;
+  BrokerName: string;
+  QTY1: number;
+  QTY3: number;
+  NET_AMT: number;
+};
+
 // Define the return type of our custom hook
 export type UseHomeDataResult = {
   homeData: HomeData | null;

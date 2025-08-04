@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   LayoutChangeEvent,
@@ -6,12 +6,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import InvoiceCard from "@/components/ui/InvoiceCard";
 import { useThemeContext } from "@/hooks/useThemeContext";
+import { useDebounce } from "@/utils/useDebounce";
 
 export interface TableColumn {
   key: string;
@@ -20,33 +22,79 @@ export interface TableColumn {
 export interface TableRow {
   [key: string]: any;
 }
+interface AugmentedTableRow extends TableRow {
+  originalIndex: number;
+}
+
 export interface DynamicTableProps {
   columns: TableColumn[];
   data: TableRow[];
+  showSelectionUtils?: boolean;
+  showSearch?: boolean;
 }
 
 export const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
+  showSelectionUtils = false,
+  showSearch = false,
 }) => {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [colWidths, setColWidths] = useState<Record<string, number>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const [filteredData, setFilteredData] = useState<AugmentedTableRow[]>([]);
 
-  const toggleRow = (index: number) => {
+  useEffect(() => {
+    const augmentedData = data.map((item, index) => ({
+      ...item,
+      originalIndex: index,
+    }));
+
+    if (!debouncedSearchQuery) {
+      setFilteredData(augmentedData);
+    } else {
+      const lowercasedQuery = debouncedSearchQuery.toLowerCase();
+      const results = augmentedData.filter((row) =>
+        columns.some((col) =>
+          String(row[col.key]).toLowerCase().includes(lowercasedQuery)
+        )
+      );
+      setFilteredData(results);
+    }
+  }, [data, columns, debouncedSearchQuery]);
+
+  const toggleRow = (originalIndex: number) => {
     const newSet = new Set(selectedRows);
-    newSet.has(index) ? newSet.delete(index) : newSet.add(index);
+    if (newSet.has(originalIndex)) {
+      newSet.delete(originalIndex);
+    } else {
+      newSet.add(originalIndex);
+    }
     setSelectedRows(newSet);
   };
-  const selectAll = () => setSelectedRows(new Set(data.map((_, i) => i)));
+
+  const selectAll = () =>
+    setSelectedRows(new Set(filteredData.map((item) => item.originalIndex)));
+
   const deselectAll = () => setSelectedRows(new Set());
   const inverseSelection = () => {
-    const newSet = new Set<number>(
-      data.map((_, i) => (selectedRows.has(i) ? -1 : i)).filter((i) => i !== -1)
+    const currentVisibleIndexes = new Set(
+      filteredData.map((item) => item.originalIndex)
     );
+    const newSet = new Set(selectedRows);
+    currentVisibleIndexes.forEach((index) => {
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+    });
     setSelectedRows(newSet);
   };
+
   const onHeaderLayout = (key: string) => (event: LayoutChangeEvent) => {
     const width = event.nativeEvent.layout.width;
     setColWidths((prev) => ({ ...prev, [key]: width }));
@@ -54,19 +102,39 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
   const getColumnWidth = (key: string) => colWidths[key] || 100;
 
   return (
-    <InvoiceCard title={`List Preview : ${selectedRows.size} Selected`}>
+    <InvoiceCard
+      title={`List Preview : ${selectedRows.size} Selected`}
+      showRecordsCount
+      recordsCount={filteredData.length}
+    >
       <View>
-        <View style={styles.buttonsRow}>
-          <TouchableOpacity style={styles.btnStyle} onPress={selectAll}>
-            <Text>Select All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnStyle} onPress={deselectAll}>
-            <Text>Deselect All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnStyle} onPress={inverseSelection}>
-            <Text>Inverse</Text>
-          </TouchableOpacity>
-        </View>
+        {showSelectionUtils && (
+          <View style={styles.buttonsRow}>
+            <TouchableOpacity style={styles.btnStyle} onPress={selectAll}>
+              <Text>Select All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btnStyle} onPress={deselectAll}>
+              <Text>Deselect All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btnStyle}
+              onPress={inverseSelection}
+            >
+              <Text>Inverse</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {showSearch && (
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search table..."
+              placeholderTextColor={theme.subText}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        )}
 
         <ScrollView horizontal nestedScrollEnabled>
           <View>
@@ -84,16 +152,16 @@ export const DynamicTable: React.FC<DynamicTableProps> = ({
 
             <ScrollView horizontal>
               <FlatList
-                data={data}
-                keyExtractor={(item, index) => index?.toString()}
+                data={filteredData}
+                keyExtractor={(item) => item.originalIndex.toString()}
                 nestedScrollEnabled
                 style={styles.tableContainer}
                 renderItem={({ item, index }) => {
-                  const isSelected = selectedRows.has(index);
+                  const isSelected = selectedRows.has(item.originalIndex);
                   return (
                     <Pressable
                       style={[styles.row, isSelected && styles.rowSelected]}
-                      onPress={() => toggleRow(index)}
+                      onPress={() => toggleRow(item.originalIndex)}
                     >
                       {columns.map((col) => (
                         <Text
@@ -157,6 +225,21 @@ function createStyles(theme: any, colorScheme: string) {
       borderWidth: 1,
       padding: 8,
       borderRadius: 12,
+    },
+    searchContainer: {
+      paddingHorizontal: 8,
+      marginBottom: 12,
+    },
+    searchInput: {
+      borderColor: "#ccc",
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      fontSize: 12,
+      color: theme.headText,
+      backgroundColor: theme.background,
+      marginTop: 8,
     },
   });
 }
