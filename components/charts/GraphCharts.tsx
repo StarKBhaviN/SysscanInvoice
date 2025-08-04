@@ -39,7 +39,7 @@ export const GraphCharts: React.FC<GraphChartProps> = ({
 
   const chartCommonProps = {
     data,
-    height: 300,
+    height: 180,
     chartConfig: {
       backgroundColor: theme.background,
       backgroundGradientFrom: theme.background,

@@ -1,5 +1,6 @@
 export type HomeQueries = {
   getAllHomeData: string;
+  getDetailsByTyp: string;
 };
 export type SalesQueries = {
   getHomeSales: string;

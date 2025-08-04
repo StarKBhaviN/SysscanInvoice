@@ -20,4 +20,14 @@ export const HomeController = (db: SQLiteDatabase) => ({
     const result = await db.getAllAsync(query);
     return result;
   },
+
+  async getDetailsByTyp(selectedCompanyCodes: string[], typ: string) {
+    const queries = getHomeQueries(selectedCompanyCodes);
+    if (!queries) return [];
+
+    const query = queries.getDetailsByTyp;
+    // Execute the query, passing the 'typ' as a parameter to replace the '?'
+    const result = await db.getAllAsync(query, [typ]);
+    return result;
+  },
 });

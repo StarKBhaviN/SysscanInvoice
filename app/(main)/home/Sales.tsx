@@ -1,12 +1,17 @@
 import { GraphCharts } from "@/components/charts/GraphCharts";
+import { DynamicTable } from "@/components/ui/DynamicTable";
 import SepratorLine from "@/components/ui/SepratorLine";
 import { SummaryCard } from "@/components/ui/SummaryCard";
+import { useHomeDetailsQuery } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Entypo } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
+  Text,
   TextStyle,
   View,
   ViewStyle,
@@ -62,14 +67,54 @@ const dummyGraphData = {
 export default function Sales() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
-
   const [currentSection, setCurrentSection] =
     useState<keyof typeof dummyGraphData>("Sales Overview");
+
+  const { typ } = useLocalSearchParams<{ typ: string }>();
 
   const handleReset = () => {
     setCurrentSection("Sales Overview");
   };
 
+  const { data, isLoading, isError } = useHomeDetailsQuery(typ);
+
+  if (isLoading && !data) {
+    return <ActivityIndicator />;
+  }
+
+  if (isError) {
+    return <Text>Error loading details.</Text>;
+  }
+
+  const columns = [
+    { key: "no", title: "No." },
+    { key: "billNo", title: "Bill No." },
+    { key: "billDt", title: "Bill Dt." },
+    { key: "invAs", title: "Inv. As" },
+    { key: "partyName", title: "Party Name" },
+    { key: "brokerName", title: "Broker Name" },
+    { key: "quantity", title: "Quantity" },
+    { key: "amount", title: "Amount" },
+    { key: "city", title: "City" },
+    { key: "ackNo", title: "Ack. No" },
+    { key: "ackDt", title: "Ack. Dt" },
+  ];
+
+  const formattedTableData =
+    data?.map((item, index) => ({
+      no: index + 1,
+      billNo: item.BILL_NO_SNC_N,
+      billDt: "N/A",
+      invAs: "N/A",
+      partyName: item.PartyName,
+      brokerName: item.BrokerName,
+      quantity: item.QTY1.toString(),
+      amount: item.NET_AMT.toString(),
+      city: "N/A",
+      ackNo: "N/A",
+      ackDt: "N/A",
+    })) || [];
+  console.log(data);
   return (
     <View style={styles.page}>
       <GraphCharts
@@ -104,6 +149,8 @@ export default function Sales() {
               />
             ))}
         </View>
+
+        <DynamicTable columns={columns} data={formattedTableData} showSearch />
       </ScrollView>
     </View>
   );

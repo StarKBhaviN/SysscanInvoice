@@ -1,10 +1,13 @@
 import { CategoryCard } from "@/components/ui/CategoryCard";
 import { CategoryCardSkeleton } from "@/components/ui/CategoryCardSkeleton";
 import HomeSummarySkeleton from "@/components/ui/HomeSummarySkeleton";
+import { useCompanyContext } from "@/context/companyContext";
 import { displayConfig } from "@/context/displayConfig";
+import { useSQLite } from "@/context/SQLiteContext";
 import { useHomeDataQuery } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { AllInOneRecord } from "@/types/home.types";
+import { useQueryClient } from "@tanstack/react-query";
 import { RelativePathString, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
@@ -14,6 +17,10 @@ export default function Home() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
 
   const {
     data: homeData,
@@ -56,6 +63,21 @@ export default function Home() {
       };
     });
   }, [homeData]);
+
+  const prefetchAndNavigate = async (typ: string, name: string) => {
+    if (!controllers) return;
+
+    // This puts the data into the cache with a specific key
+    await queryClient.prefetchQuery({
+      queryKey: ["homeDetails", companyCodes.sort(), typ],
+      queryFn: () => controllers.Home.getDetailsByTyp(companyCodes, typ),
+    });
+
+    router.push({
+      pathname: name as RelativePathString,
+      params: { typ },
+    });
+  };
 
   if (isFetching) {
     return (
@@ -112,7 +134,7 @@ export default function Home() {
                 icon={
                   <IconComponent name={iconName} size={24} color={theme.icon} />
                 }
-                onPress={() => router.push(path)}
+                onPress={() => prefetchAndNavigate(cat.type, path)}
               />
             );
           })}
