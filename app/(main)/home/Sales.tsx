@@ -114,7 +114,7 @@ export default function Sales() {
       ackNo: "N/A",
       ackDt: "N/A",
     })) || [];
-  console.log(data);
+
   return (
     <View style={styles.page}>
       <GraphCharts

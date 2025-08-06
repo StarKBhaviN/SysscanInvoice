@@ -73,9 +73,12 @@ export default function Home() {
       queryFn: () => controllers.Home.getDetailsByTyp(companyCodes, typ),
     });
 
+    const nameForPath = name.replace(/\s*\(Gen\)\s*/g, "");
+    const pathSegment = nameForPath.replace(/\s+/g, "");
+
     router.push({
-      pathname: name as RelativePathString,
-      params: { typ },
+      pathname: `/(main)/home/${pathSegment}` as RelativePathString,
+      params: { title: name, typ: typ },
     });
   };
 
@@ -123,7 +126,6 @@ export default function Home() {
         >
           {categoriesToDisplay.map((cat) => {
             const { IconComponent, iconName, data } = cat;
-            const path = `/(main)/home/${cat.name}` as RelativePathString;
             return (
               <CategoryCard
                 key={cat.name}
@@ -134,7 +136,7 @@ export default function Home() {
                 icon={
                   <IconComponent name={iconName} size={24} color={theme.icon} />
                 }
-                onPress={() => prefetchAndNavigate(cat.type, path)}
+                onPress={() => prefetchAndNavigate(cat.type, cat.name)}
               />
             );
           })}
