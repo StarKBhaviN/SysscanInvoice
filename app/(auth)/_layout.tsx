@@ -18,11 +18,12 @@ export default function AuthLayout() {
   const styles = createStyles(theme, colorScheme);
 
   useEffect(() => {
-    if (!loading && token) {
+    if (!loading) {
       router.replace("/(main)/home/Index");
     }
-  }, [token, loading]);
+  }, [loading]);
 
+  console.log("token", token, loading);
   // if (loading || !token) {
   //   return (
   //     <View
