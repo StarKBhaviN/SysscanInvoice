@@ -21,21 +21,21 @@ type TabItem = {
 const TAB_ITEMS = [
   {
     name: "Home",
-    path: "/home/Index",
+    path: "/home/index",
     icon: ({ color, size }) => (
       <Ionicons name="home" color={color} size={size} />
     ),
   },
   {
     name: "Invoice",
-    path: "/invoice/Index",
+    path: "/invoice/index",
     icon: ({ color, size }) => (
       <MaterialCommunityIcons name="printer" color={color} size={size} />
     ),
   },
   {
     name: "Profile",
-    path: "/profile/Index",
+    path: "/profile/index",
     icon: ({ color, size }) => (
       <Ionicons name="person" color={color} size={size} />
     ),

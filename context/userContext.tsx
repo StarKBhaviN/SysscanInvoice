@@ -61,7 +61,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setToken(token);
       await userRes(token);
 
-      router.replace("/(main)/home/Index");
+      router.replace("/(main)/home/index");
     } catch (err: any) {
       const messages = err?.response?.data?.message;
 

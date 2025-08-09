@@ -54,7 +54,7 @@ export default function LoginScreen() {
       <View style={[styles.inpContainer, { alignItems: "center" }]}>
         <TouchableOpacity
           style={styles.signInButton}
-          onPress={() => router.push("/(main)/home/Index")}
+          onPress={() => router.push("/(main)/home/index")}
           // onPress={() => login(email, password)}
         >
           <Text style={styles.btnText}>SIGN IN</Text>
