@@ -19,7 +19,7 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (!loading) {
-      router.replace("/(main)/home/index");
+      router.replace("/home");
     }
   }, [loading]);
 

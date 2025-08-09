@@ -77,7 +77,7 @@ export default function Home() {
     const pathSegment = nameForPath.replace(/\s+/g, "");
 
     router.push({
-      pathname: `/(main)/home/${pathSegment}` as RelativePathString,
+      pathname: `/home/${pathSegment}` as RelativePathString,
       params: { title: name, typ: typ },
     });
   };

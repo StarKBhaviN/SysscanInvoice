@@ -78,14 +78,14 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           }}
         >
           <View style={{ flexDirection: "row", gap: 6 }}>
-            <Text style={styles.themeText}>QTY-1</Text>
+            <Text style={styles.themeText}>Pcs</Text>
             <Text style={styles.themeText}>:</Text>
             <Text style={{ color: theme.headText }}>
               {data["Sum(QTY1)"].toLocaleString("en-IN")}
             </Text>
           </View>
           <View style={{ flexDirection: "row", gap: 6 }}>
-            <Text style={styles.themeText}>QTY-3</Text>
+            <Text style={styles.themeText}>Qty</Text>
             <Text style={styles.themeText}>:</Text>
             <Text style={{ color: theme.headText }}>
               {data["Sum(QTY3)"].toLocaleString("en-IN")}
