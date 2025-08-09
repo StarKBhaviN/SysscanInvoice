@@ -134,6 +134,7 @@ export default function Home() {
                 unit="rs"
                 data={data}
                 icon={
+                  // @ts-ignore
                   <IconComponent name={iconName} size={24} color={theme.icon} />
                 }
                 onPress={() => prefetchAndNavigate(cat.type, cat.name)}
