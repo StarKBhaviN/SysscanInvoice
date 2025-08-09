@@ -46,11 +46,9 @@
     "experiments": {
       "typedRoutes": true
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "extra": {
-      "router": {},
+      "router": { "origin": false },
       "eas": {
         "projectId": "23c502e0-9b71-4274-acb5-daa25f725462"
       }
