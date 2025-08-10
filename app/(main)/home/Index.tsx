@@ -8,7 +8,7 @@ import { useHomeDataQuery } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { AllInOneRecord } from "@/types/home.types";
 import { useQueryClient } from "@tanstack/react-query";
-import { RelativePathString, usePathname, useRouter } from "expo-router";
+import { RelativePathString, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import HomeSummary from "./_components/HomeSummary";
@@ -83,8 +83,6 @@ export default function Home() {
     });
   };
 
-  const pathName = usePathname();
-  console.log(pathName);
   if (isFetching) {
     return (
       <View style={styles.homePage}>
@@ -140,8 +138,8 @@ export default function Home() {
                   unit="rs"
                   data={data}
                   icon={
-                    // @ts-ignore
                     <IconComponent
+                      // @ts-ignore
                       name={iconName}
                       size={24}
                       color={theme.icon}

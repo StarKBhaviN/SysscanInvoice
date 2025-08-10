@@ -1,6 +1,6 @@
 import ThemeProvider from "@/context/ThemeContext.js";
 import { useFonts } from "expo-font";
-import { Slot, usePathname } from "expo-router";
+import { Slot } from "expo-router";
 import "react-native-reanimated";
 
 import { AlertProvider } from "@/context/alertContext";
@@ -11,9 +11,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const path = usePathname();
   if (!loaded) return null;
-  console.log("INITIAL PATH:", path);
 
   return (
     <ThemeProvider>

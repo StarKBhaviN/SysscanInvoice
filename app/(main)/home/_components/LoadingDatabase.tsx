@@ -15,19 +15,11 @@ export default function LoadingDatabase() {
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      {progress < 100 ? (
-        <>
-          <ActivityIndicator size="large" />
-          <Text style={{ marginTop: 10, color: theme.headText }}>
-            Downloading and copying database...
-          </Text>
-          <Text style={{ marginTop: 6, color: theme.headText }}>
-            {progress}%
-          </Text>
-        </>
-      ) : (
-        <Text>Opening database...</Text>
-      )}
+      <ActivityIndicator size="large" />
+      <Text style={{ marginTop: 10, color: theme.headText }}>
+        Downloading and copying database...
+      </Text>
+      <Text style={{ marginTop: 6, color: theme.headText }}>{progress}%</Text>
     </View>
   );
 }
