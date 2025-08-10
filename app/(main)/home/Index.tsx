@@ -12,13 +12,14 @@ import { RelativePathString, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import HomeSummary from "./_components/HomeSummary";
+import LoadingDatabase from "./_components/LoadingDatabase";
 
 export default function Home() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { controllers } = useSQLite();
+  const { controllers, isLoading: isDatabaseLoading } = useSQLite();
   const { selectedCompanies } = useCompanyContext();
   const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
 
@@ -77,7 +78,7 @@ export default function Home() {
     const pathSegment = nameForPath.replace(/\s+/g, "");
 
     router.push({
-      pathname: `/(main)/home/${pathSegment}` as RelativePathString,
+      pathname: `/home/${pathSegment}` as RelativePathString,
       params: { title: name, typ: typ },
     });
   };
@@ -116,32 +117,41 @@ export default function Home() {
     <View style={styles.homePage}>
       <HomeSummary />
 
-      <ScrollView>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-          }}
-        >
-          {categoriesToDisplay.map((cat) => {
-            const { IconComponent, iconName, data } = cat;
-            return (
-              <CategoryCard
-                key={cat.name}
-                theme={theme}
-                title={cat.name}
-                unit="rs"
-                data={data}
-                icon={
-                  <IconComponent name={iconName} size={24} color={theme.icon} />
-                }
-                onPress={() => prefetchAndNavigate(cat.type, cat.name)}
-              />
-            );
-          })}
-        </View>
-      </ScrollView>
+      {isDatabaseLoading ? (
+        <LoadingDatabase />
+      ) : (
+        <ScrollView>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
+          >
+            {categoriesToDisplay.map((cat) => {
+              const { IconComponent, iconName, data } = cat;
+              return (
+                <CategoryCard
+                  key={cat.name}
+                  theme={theme}
+                  title={cat.name}
+                  unit="rs"
+                  data={data}
+                  icon={
+                    <IconComponent
+                      // @ts-ignore
+                      name={iconName}
+                      size={24}
+                      color={theme.icon}
+                    />
+                  }
+                  onPress={() => prefetchAndNavigate(cat.type, cat.name)}
+                />
+              );
+            })}
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 }

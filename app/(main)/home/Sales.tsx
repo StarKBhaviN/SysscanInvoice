@@ -150,7 +150,12 @@ export default function Sales() {
             ))}
         </View>
 
-        <DynamicTable columns={columns} data={formattedTableData} showSearch />
+        <DynamicTable
+          columns={columns}
+          data={formattedTableData}
+          showSearch
+          showSelectionUtils
+        />
       </ScrollView>
     </View>
   );

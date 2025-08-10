@@ -1,7 +1,7 @@
 // app/(auth)/_layout.tsx
 import { useUserContext } from "@/context/userContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import { Slot, useRouter } from "expo-router";
+import { Slot, usePathname, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image, ScrollView, StatusBar, StyleSheet, View } from "react-native";
 import {
@@ -13,16 +13,18 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 export default function AuthLayout() {
   const { theme, colorScheme } = useThemeContext();
   const { token, loading } = useUserContext();
+  const pathName = usePathname();
   const router = useRouter();
 
   const styles = createStyles(theme, colorScheme);
 
   useEffect(() => {
-    if (!loading && token) {
-      router.replace("/(main)/home/Index");
+    if (!loading) {
+      router.push("/home");
     }
-  }, [token, loading]);
+  }, [loading]);
 
+  console.log("token", token, loading, pathName);
   // if (loading || !token) {
   //   return (
   //     <View
