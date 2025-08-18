@@ -53,3 +53,42 @@ export const useHomeDetailsQuery = (typ: string) => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const useDetailsSummary = (companyCodes, typ, controllers) => {
+  return useQuery({
+    queryKey: ["detailsSummary", [...companyCodes].sort(), typ],
+
+    queryFn: () => {
+      if (!controllers || !typ) {
+        throw new Error("Invalid parameters for getSummaryByTyp.");
+      }
+      return controllers.Home.getSummaryByTyp(companyCodes, typ);
+    },
+
+    enabled: !!typ && companyCodes.length > 0,
+  });
+};
+
+export const useHomeDetails = (
+  companyCodes,
+  typ,
+  expandedParty,
+  controllers
+) => {
+  return useQuery({
+    queryKey: ["homeDetails", [...companyCodes].sort(), typ, expandedParty],
+
+    queryFn: () => {
+      if (!controllers || !typ || !expandedParty) {
+        throw new Error("Invalid parameters for getSummaryDetailsByTyp.");
+      }
+      return controllers.Home.getSummaryDetailsByTyp(
+        companyCodes,
+        typ,
+        expandedParty
+      );
+    },
+
+    enabled: !!typ && !!expandedParty && companyCodes.length > 0,
+  });
+};

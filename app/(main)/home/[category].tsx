@@ -1,7 +1,7 @@
 import { useSQLite } from "@/context/SQLiteContext";
 import { useCompanyContext } from "@/context/companyContext";
+import { useDetailsSummary, useHomeDetails } from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -19,7 +19,6 @@ import {
   ViewStyle,
 } from "react-native";
 
-// This is a placeholder for your actual data item type
 type DetailItem = {
   id: string;
   PartyName: string;
@@ -52,36 +51,14 @@ export default function CategoryDetailsPage() {
     isLoading: summaryLoading,
     isError: summaryError,
     error: summaryErrObj,
-  } = useQuery({
-    queryKey: ["detailsSummary", companyCodes.sort(), typ],
-    queryFn: () => {
-      if (!controllers || !typ) {
-        throw new Error("Query function called with invalid parameters.");
-      }
-      return controllers.Home.getSummaryByTyp(companyCodes, typ);
-    },
-    enabled: !!typ && companyCodes.length > 0,
-  });
+  } = useDetailsSummary(companyCodes, typ, controllers);
 
   const {
     data: detailsData,
     isLoading: detailsLoading,
     isError: detailsError,
     error: detailsErrObj,
-  } = useQuery({
-    queryKey: ["homeDetails", companyCodes.sort(), typ, expandedParty],
-    queryFn: () => {
-      if (!controllers || !typ) {
-        throw new Error("Query function called with invalid parameters.");
-      }
-      return controllers.Home.getSummaryDetailsByTyp(
-        companyCodes,
-        typ,
-        expandedParty!
-      );
-    },
-    enabled: !!typ && !!expandedParty && companyCodes.length > 0,
-  });
+  } = useHomeDetails(companyCodes, typ, expandedParty, controllers);
 
   const toggleExpand = (partyName: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

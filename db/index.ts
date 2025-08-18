@@ -4,7 +4,7 @@ import * as SQLite from "expo-sqlite";
 
 const DBName = "sysscan_invoice_v4.db";
 const DB_URL =
-  "https://drive.google.com/uc?export=download&id=11SnRf11_8T053xiyvvwgsN_1z6m5f9_T";
+  "https://drive.google.com/uc?export=download&id=1zYQaAlY8V8najND0x0ljNpFKp27rK96N";
 const RESUME_DATA_KEY = "dbDownloadResumeData";
 
 export async function openDatabase(onProgress?: (progress: number) => void) {

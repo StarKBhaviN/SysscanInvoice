@@ -2,8 +2,15 @@ import ChooseDateRange from "@/components/ui/ChooseDateRange";
 import { DynamicTable } from "@/components/ui/DynamicTable";
 import InvoiceCard from "@/components/ui/InvoiceCard";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import React from "react";
+import { Button } from "@react-navigation/elements";
+import * as FileSystem from "expo-file-system";
+import * as IntentLauncher from "expo-intent-launcher";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
+import React, { useState } from "react";
 import {
+  Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,10 +19,15 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { SettingsModal } from "../../../components/SettingsModal";
+import { generateInvoiceHtml } from "../../../utils/pdfGenerator";
+import { defaultSettings, PrintSettings } from "../../../utils/print.utils";
 
 export default function PrintInvoice() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
+  const [settings, setSettings] = useState<PrintSettings>(defaultSettings);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const columns = [
     { key: "no", title: "No." },
@@ -138,84 +150,150 @@ export default function PrintInvoice() {
     },
   ];
 
+  const createPdf = async () => {
+    try {
+      const htmlContent = generateInvoiceHtml(columns, dummyData);
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      const fileName = `Invoice_${new Date().toISOString().split("T")[0]}.pdf`;
+      const newPath = FileSystem.documentDirectory + fileName;
+      await FileSystem.moveAsync({ from: uri, to: newPath });
+      return newPath;
+    } catch (err) {
+      console.error("PDF creation failed:", err);
+      Alert.alert("Error", "Could not create the PDF file.");
+      return null;
+    }
+  };
+
+  const handleDownload = async () => {
+    const uri = await createPdf();
+    if (uri) {
+      Alert.alert("Success!", "PDF generated successfully.");
+
+      if (Platform.OS === "android") {
+        IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+          data: uri,
+          flags: 1,
+          type: "application/pdf",
+        });
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    const uri = await createPdf();
+    if (uri) {
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        Alert.alert("Sharing not available on this device");
+        return;
+      }
+      await Sharing.shareAsync(uri, {
+        mimeType: "application/pdf",
+        dialogTitle: "Share Invoice PDF",
+      });
+    }
+  };
+
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <Text style={styles.headerText}>Print & Share</Text>
-      <InvoiceCard title={"INVOICE INFORMATION"}>
-        <View style={styles.part}>
-          <Text style={styles.text}>Print What?</Text>
-          <Text style={styles.text}>Sales Invoice</Text>
+    <>
+      <SettingsModal
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        settings={settings}
+        onSave={setSettings}
+      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Print & Share</Text>
+          <Button
+            style={{ backgroundColor: "transparent" }}
+            onPress={() => setIsModalVisible(true)}
+          >
+            ⚙️
+          </Button>
         </View>
-        <View style={styles.part}>
-          <Text style={styles.text}>Invoice As</Text>
-          <Text style={styles.text}>TAX</Text>
-        </View>
-
-        <ChooseDateRange />
-        <View style={styles.part}>
-          <View style={styles.row}>
-            <Text style={styles.label}>From</Text>
-            <Text style={{ fontWeight: 700, color: theme.icon }}>:</Text>
-            <Text style={styles.value}>25-05-25</Text>
+        <InvoiceCard title={"INVOICE INFORMATION"}>
+          <View style={styles.part}>
+            <Text style={styles.text}>Print What?</Text>
+            <Text style={styles.text}>{settings.printWhat}</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>To</Text>
-            <Text style={{ fontWeight: 700, color: theme.icon }}>:</Text>
-            <Text style={styles.value}>25-06-25</Text>
+          <View style={styles.part}>
+            <Text style={styles.text}>Invoice As</Text>
+            <Text style={styles.text}>{settings.invoiceAs}</Text>
           </View>
-        </View>
-      </InvoiceCard>
 
-      <InvoiceCard title={"PARTY/CLIENT INFORMATION"}>
-        <View style={styles.part}>
-          <Text style={styles.text}>Invoice As</Text>
-          <Text style={styles.text}>TAX</Text>
-        </View>
-        <View style={styles.part}>
-          <Text style={styles.text}>Party Name</Text>
-          <Text style={styles.text}>BOTH</Text>
-        </View>
-      </InvoiceCard>
-
-      {/* Print Format, Number of Copies, Print Paper, Print Destination */}
-      <InvoiceCard title={"PRINT OPTIONS"}>
-        <View style={styles.part}>
-          <Text style={styles.text}>Page Format</Text>
-          <Text style={styles.text}>A4</Text>
-        </View>
-        <View style={styles.part}>
-          <Text style={styles.text}>Number of Copies</Text>
-          <Text style={styles.text}>2</Text>
-        </View>
-        <View style={styles.part}>
-          <Text style={styles.text}>Print Paper</Text>
-          <Text style={styles.text}>Plain</Text>
-        </View>
-        <View style={styles.part}>
-          <Text style={styles.text}>Print Destination</Text>
-          <Text style={styles.text}>Screen</Text>
-        </View>
-      </InvoiceCard>
-
-      <DynamicTable columns={columns} data={dummyData} />
-
-      <InvoiceCard title={"FILE/SHARE SETTINGS"}>
-        <View style={styles.saveAsPdf}>
-          <Text style={{ marginBottom: 4 }}>Save as PDF?</Text>
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity style={styles.shareBtn}>
-              <Text>WhatsApp</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.shareBtn}>
-              <Text>Email</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.shareBtn}>
-              <Text>Other</Text>
-            </TouchableOpacity>
+          <ChooseDateRange />
+          <View style={styles.part}>
+            <View style={styles.row}>
+              <Text style={styles.label}>From</Text>
+              <Text style={{ fontWeight: 700, color: theme.icon }}>:</Text>
+              <Text style={styles.value}>25-05-25</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>To</Text>
+              <Text style={{ fontWeight: 700, color: theme.icon }}>:</Text>
+              <Text style={styles.value}>25-06-25</Text>
+            </View>
           </View>
-        </View>
-      </InvoiceCard>
-    </ScrollView>
+        </InvoiceCard>
+
+        <InvoiceCard title={"PARTY/CLIENT INFORMATION"}>
+          <View style={styles.part}>
+            <Text style={styles.text}>Invoice As</Text>
+            <Text style={styles.text}>{settings.partyName}</Text>
+          </View>
+          <View style={styles.part}>
+            <Text style={styles.text}>Party Name</Text>
+            <Text style={styles.text}>{settings.partyName}</Text>
+          </View>
+        </InvoiceCard>
+
+        {/* Print Format, Number of Copies, Print Paper, Print Destination */}
+        <InvoiceCard title={"PRINT OPTIONS"}>
+          <View style={styles.part}>
+            <Text style={styles.text}>Page Format</Text>
+            <Text style={styles.text}>{settings.pageFormat}</Text>
+          </View>
+          <View style={styles.part}>
+            <Text style={styles.text}>Number of Copies</Text>
+            <Text style={styles.text}>{settings.copies}</Text>
+          </View>
+          <View style={styles.part}>
+            <Text style={styles.text}>Print Paper</Text>
+            <Text style={styles.text}>{settings.printPaper}</Text>
+          </View>
+          <View style={styles.part}>
+            <Text style={styles.text}>Print Destination</Text>
+            <Text style={styles.text}>{settings.printDestination}</Text>
+          </View>
+        </InvoiceCard>
+
+        <DynamicTable columns={columns} data={dummyData} />
+
+        <InvoiceCard title={"FILE/SHARE SETTINGS"}>
+          <View style={styles.saveAsPdf}>
+            <Text style={{ marginBottom: 4, color: theme.headText }}>
+              Save as PDF?
+            </Text>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={styles.shareBtn}
+                onPress={() => handleShare()}
+              >
+                <Text style={styles.shareBtnText}>Share</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.shareBtn}
+                onPress={handleDownload}
+              >
+                <Text style={styles.shareBtnText}>Download</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </InvoiceCard>
+      </ScrollView>
+    </>
   );
 }
 
@@ -233,6 +311,7 @@ function createStyles(
 ) {
   return StyleSheet.create<{
     part: ViewStyle;
+    headerContainer: ViewStyle;
     saveAsPdf: ViewStyle;
     buttonGroup: ViewStyle;
     shareBtn: ViewStyle;
@@ -241,16 +320,22 @@ function createStyles(
     value: TextStyle;
     text: TextStyle;
     headerText: TextStyle;
+    shareBtnText: TextStyle;
   }>({
     part: {
       width: "49%",
+      marginBottom: 8,
+    },
+    headerContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: 8,
     },
     headerText: {
       fontSize: 18,
       fontWeight: "bold",
       color: theme.headText || (colorScheme === "dark" ? "#fff" : "#000"),
-      marginBottom: 12,
       textAlign: "center",
     },
     text: {
@@ -261,10 +346,10 @@ function createStyles(
     },
     buttonGroup: {
       flexDirection: "row",
-      justifyContent: "center",
+      justifyContent: "flex-start",
     },
     shareBtn: {
-      backgroundColor: "white",
+      backgroundColor: theme.background || "#007aff",
       height: 30,
       marginRight: 10,
       width: "30%",
@@ -272,6 +357,10 @@ function createStyles(
       justifyContent: "center",
       borderRadius: 8,
       marginBottom: 6,
+    },
+    shareBtnText: {
+      color: theme.headText,
+      fontWeight: "600",
     },
     row: {
       flexDirection: "row",
