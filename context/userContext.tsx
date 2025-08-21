@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import UsersAPI, { LoginRequest } from "@/services/api/users";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -32,13 +32,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { showAlert } = useAlert();
 
-  const userRes = async (accessToken: string) => {
-    const resp = await axios.get("/users/profile", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    setUser(resp.data);
+  const userRes = async () => {
+    const resp = await UsersAPI.profile();
+    setUser(resp);
   };
 
   useEffect(() => {
@@ -46,7 +42,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const storedToken = await AsyncStorage.getItem("Invoice_Token");
       if (storedToken) {
         setToken(storedToken);
-        await userRes(storedToken);
+        await userRes();
       }
       setLoading(false);
     };
@@ -55,11 +51,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await axios.post("/users/login", { email, password });
-      const token = res.data.accessToken;
+      const res = await UsersAPI.login({ email, password } as LoginRequest);
+      console.log("Login response:", res);
+      const token = res.accessToken;
       await AsyncStorage.setItem("Invoice_Token", token);
       setToken(token);
-      await userRes(token);
+      await userRes();
 
       router.replace("/home");
     } catch (err: any) {

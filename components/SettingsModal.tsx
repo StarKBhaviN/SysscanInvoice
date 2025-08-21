@@ -140,6 +140,7 @@ const SettingPicker = ({
           }}
           selectedValue={selectedValue}
           onValueChange={onValueChange}
+          dropdownIconColor={theme.headText}
         >
           {options.map((opt: string) => (
             <Picker.Item label={opt} value={opt} key={opt} />

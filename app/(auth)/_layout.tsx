@@ -19,10 +19,10 @@ export default function AuthLayout() {
   const styles = createStyles(theme, colorScheme);
 
   useEffect(() => {
-    if (!loading) {
-      router.push("/home");
+    if (!loading && token) {
+      router.replace("/home");
     }
-  }, [loading]);
+  }, [loading, token]);
 
   console.log("token", token, loading, pathName);
   // if (loading || !token) {

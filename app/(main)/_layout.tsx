@@ -6,33 +6,32 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { CompanyProvider } from "@/context/companyContext";
 import { SQLiteProvider } from "@/context/SQLiteContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Slot } from "expo-router";
+import { useUserContext } from "@/context/userContext";
+import { Slot, useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function MainLayout() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
+  const { token, loading } = useUserContext();
+  const router = useRouter();
 
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 5 * 60 * 1000,
-      },
-    },
-  });
+  useEffect(() => {
+    if (!loading && !token) {
+      router.replace("/login");
+    }
+  }, [loading, token]);
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <SQLiteProvider>
           <CompanyProvider>
-            <QueryClientProvider client={queryClient}>
-              <Header />
-              <View style={styles.content}>
-                <Slot />
-              </View>
-              <FooterNav />
-            </QueryClientProvider>
+            <Header />
+            <View style={styles.content}>
+              <Slot />
+            </View>
+            <FooterNav />
           </CompanyProvider>
         </SQLiteProvider>
       </SafeAreaView>

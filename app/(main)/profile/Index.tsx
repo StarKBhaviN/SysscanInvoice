@@ -1,7 +1,10 @@
-import { useCompanyContext } from "@/context/companyContext";
+import PaymentHistoryModal from "@/components/PaymentHistoryModal";
 import { useUserContext } from "@/context/userContext";
+import { useMyCompaniesQuery } from "@/hooks/queries/companies";
+import { usePaymentsByUserQuery } from "@/hooks/queries/payment";
+import { useSubscriptionByUserQuery } from "@/hooks/queries/subscription";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
   ScrollView,
@@ -14,8 +17,13 @@ import {
 export default function Profile() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
-  const { user } = useUserContext();
-  const { companies } = useCompanyContext();
+  const { user, logout } = useUserContext();
+  const { data: myCompanies = [] } = useMyCompaniesQuery();
+  const userId = user?.adminRefID || 0;
+  const { data: payments = [] } = usePaymentsByUserQuery(userId);
+  const { data: subscription } = useSubscriptionByUserQuery(userId);
+
+  const [historyVisible, setHistoryVisible] = useState(false);
 
   return (
     <ScrollView
@@ -44,7 +52,7 @@ export default function Profile() {
       {/* Company Section */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Your Companies</Text>
-        {companies.map((company, index) => (
+        {myCompanies.map((company: any, index: number) => (
           <Text key={index} style={styles.cardItem}>
             {company.name}
           </Text>
@@ -57,13 +65,28 @@ export default function Profile() {
       {/* Subscription Section */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Subscription Details</Text>
-        <Text style={styles.cardItem}>Remaining Time : 3 Months</Text>
-        <TouchableOpacity style={styles.linkButton}>
-          <Text style={styles.linkText}>Payment History</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>Renew Subscription</Text>
-        </TouchableOpacity>
+        <Text style={styles.cardItem}>
+          Status: {subscription?.isActive ? "Active" : "Inactive"}
+        </Text>
+        <Text style={styles.cardItem}>
+          Ends:{" "}
+          {subscription?.endDate
+            ? new Date(subscription.endDate).toDateString()
+            : "-"}
+        </Text>
+        {/* {user?.role === "ADMIN" && ( */}
+        <>
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => setHistoryVisible(true)}
+          >
+            <Text style={styles.linkText}>Payment History</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionText}>Renew Subscription</Text>
+          </TouchableOpacity>
+        </>
+        {/* )} */}
       </View>
 
       {/* Users Section */}
@@ -115,6 +138,15 @@ export default function Profile() {
       <TouchableOpacity style={styles.syncButton}>
         <Text style={styles.syncText}>Sync New Data</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.syncButton} onPress={logout}>
+        <Text style={styles.syncText}>Logout</Text>
+      </TouchableOpacity>
+
+      <PaymentHistoryModal
+        visible={historyVisible}
+        onClose={() => setHistoryVisible(false)}
+        payments={payments}
+      />
     </ScrollView>
   );
 }
