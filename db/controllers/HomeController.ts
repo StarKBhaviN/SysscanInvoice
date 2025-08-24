@@ -1,6 +1,12 @@
 import { HomeQueries } from "@/types/queries.types";
 import { SQLiteDatabase } from "expo-sqlite";
-import { getHomeQueries } from "../sql_queries";
+import {
+  getHomeQueries,
+  getPayablesQuery,
+  getReceivablesQuery,
+} from "../sql_queries";
+
+// controllers/PayablesController.ts
 
 export const HomeController = (db: SQLiteDatabase) => ({
   async getAllHome(
@@ -54,5 +60,71 @@ export const HomeController = (db: SQLiteDatabase) => ({
     // Execute the query, passing the 'typ' as a parameter to replace the '?'
     const result = await db.getAllAsync(query, [typ]);
     return result;
+  },
+});
+
+export const ReceivablesController = (db: SQLiteDatabase) => ({
+  getTotReceived(selectedCompanyCodes: string[], from: string, to: string) {
+    const q = getReceivablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getTotReceived, ["REC", from, to]);
+  },
+  getSummaryByTyp(selectedCompanyCodes: string[], from: string, to: string) {
+    const q = getReceivablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getSummaryByTyp, ["REC", from, to]);
+  },
+  getSummaryDetailsByTyp(
+    selectedCompanyCodes: string[],
+    partyName: string,
+    from: string,
+    to: string
+  ) {
+    const q = getReceivablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getSummaryDetailsByTyp, [
+      "REC",
+      partyName,
+      from,
+      to,
+    ]);
+  },
+  getDetailsByTyp(selectedCompanyCodes: string[], from: string, to: string) {
+    const q = getReceivablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getDetailsByTyp, ["REC", from, to]);
+  },
+});
+
+export const PayablesController = (db: SQLiteDatabase) => ({
+  getTotPayment(selectedCompanyCodes: string[], from: string, to: string) {
+    const q = getPayablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getTotPayment, ["PMT", from, to]);
+  },
+  getSummaryByTyp(selectedCompanyCodes: string[], from: string, to: string) {
+    const q = getPayablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getSummaryByTyp, ["PMT", from, to]);
+  },
+  getSummaryDetailsByTyp(
+    selectedCompanyCodes: string[],
+    partyName: string,
+    from: string,
+    to: string
+  ) {
+    const q = getPayablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getSummaryDetailsByTyp, [
+      "PMT",
+      partyName,
+      from,
+      to,
+    ]);
+  },
+  getDetailsByTyp(selectedCompanyCodes: string[], from: string, to: string) {
+    const q = getPayablesQuery(selectedCompanyCodes);
+    if (!q) return [];
+    return db.getAllAsync(q.getDetailsByTyp, ["PMT", from, to]);
   },
 });

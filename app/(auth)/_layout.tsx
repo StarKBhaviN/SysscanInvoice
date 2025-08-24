@@ -1,9 +1,16 @@
-// app/(auth)/_layout.tsx
 import { useUserContext } from "@/context/userContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { Slot, usePathname, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Image, ScrollView, StatusBar, StyleSheet, View } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -24,19 +31,6 @@ export default function AuthLayout() {
     }
   }, [loading, token]);
 
-  console.log("token", token, loading, pathName);
-  // if (loading || !token) {
-  //   return (
-  //     <View
-  //       style={[
-  //         styles.container,
-  //         { justifyContent: "center", alignItems: "center" },
-  //       ]}
-  //     >
-  //       <ActivityIndicator size="large" color={theme.subText || "#000"} />
-  //     </View>
-  //   );
-  // }
   return (
     <SafeAreaProvider>
       <StatusBar
@@ -49,6 +43,7 @@ export default function AuthLayout() {
           bounces={false}
           showsVerticalScrollIndicator={false}
         >
+          {/* Logo */}
           <View style={styles.headingIcon}>
             <View style={{ marginTop: 14, height: hp(22), width: wp(100) }}>
               <Image
@@ -63,9 +58,14 @@ export default function AuthLayout() {
             </View>
           </View>
 
-          <View style={styles.bottomBar}>
+          {/* Content (with keyboard avoiding) */}
+          <KeyboardAvoidingView
+            style={styles.bottomBar}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0} // adjust if header overlaps
+          >
             <Slot />
-          </View>
+          </KeyboardAvoidingView>
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -95,6 +95,7 @@ function createStyles(
       borderBottomRightRadius: 0,
       paddingVertical: 30,
       paddingHorizontal: 26,
+      flex: 1,
     },
     headingIcon: {
       flex: 1,

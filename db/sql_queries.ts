@@ -1,9 +1,7 @@
 import {
   HomeQueries,
   PayablesQueries,
-  PurchaseQueries,
   ReceivablesQueries,
-  SalesQueries,
 } from "@/types/queries.types";
 
 export const getHeaderCompanyDataQuery = `
@@ -102,58 +100,146 @@ export const getHomeQueries = (
   };
 };
 
-export const getSalesQuery = (
-  selectedCompanyCodes: string[]
-): SalesQueries | null => {
-  if (selectedCompanyCodes.length === 0) {
-    return null;
-  }
-  const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
-  return {
-    getHomeSales: `
-      QUERY:: Receivables query
-    `,
-  };
-};
-
-export const getPurchaseQuery = (
-  selectedCompanyCodes: string[]
-): PurchaseQueries | null => {
-  if (selectedCompanyCodes.length === 0) {
-    return null;
-  }
-  const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
-  return {
-    getHomePurchase: `
-      QUERY:: Receivables query
-    `,
-  };
-};
-
 export const getReceivablesQuery = (
   selectedCompanyCodes: string[]
 ): ReceivablesQueries | null => {
-  if (selectedCompanyCodes.length === 0) {
-    return null;
-  }
+  if (selectedCompanyCodes.length === 0) return null;
   const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
+
   return {
-    getHomeReceivables: `
-      QUERY:: Receivables query
+    // Totals by instrument (BANK/CASH) in a range
+    getTotReceived: `
+      SELECT 
+        TYP,
+        ENTR_AS,
+        COUNT(ENTR_NO) AS TotalEntries,
+        SUM(DOC_AMT) AS TotalAmount
+      FROM a_trn_recpmt t
+      WHERE 
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      GROUP BY TYP, ENTR_AS;
+    `,
+
+    // Summary by Party for a TYP in range
+    getSummaryByTyp: `
+      SELECT
+        p.ACT_NM AS PartyName,
+        COUNT(t.ENTR_NO)   AS totalEntries,
+        SUM(t.DOC_AMT)     AS totalDOC_AMT
+      FROM a_trn_recpmt t
+      LEFT JOIN a_mst_act p ON t.PTY_CD = p.ACT_CD
+      WHERE
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      GROUP BY p.ACT_NM
+      ORDER BY p.ACT_NM;
+    `,
+
+    // Line items for a specific Party for a TYP in range
+    getSummaryDetailsByTyp: `
+      SELECT
+        t.ENTR_NO,
+        p.ACT_NM      AS PartyName,
+        t.ENTR_AS,
+        t.DOC_AMT,
+        t.TRN_DT
+      FROM a_trn_recpmt t
+      LEFT JOIN a_mst_act p ON t.PTY_CD = p.ACT_CD
+      WHERE
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND p.ACT_NM = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      ORDER BY t.ENTR_NO;
+    `,
+
+    // All line items for a TYP in range
+    getDetailsByTyp: `
+      SELECT
+        t.ENTR_NO,
+        p.ACT_NM      AS PartyName,
+        t.ENTR_AS,
+        t.DOC_AMT,
+        t.TRN_DT
+      FROM a_trn_recpmt t
+      LEFT JOIN a_mst_act p ON t.PTY_CD = p.ACT_CD
+      WHERE
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      ORDER BY t.ENTR_NO;
     `,
   };
 };
 
+// PAYABLES (PMT) — identical shape, same table, just pass 'PMT'
 export const getPayablesQuery = (
   selectedCompanyCodes: string[]
 ): PayablesQueries | null => {
-  if (selectedCompanyCodes.length === 0) {
-    return null;
-  }
+  if (selectedCompanyCodes.length === 0) return null;
   const codes = selectedCompanyCodes.map((c) => `'${c}'`).join(",");
+
   return {
-    getHomePayables: `
-      QUERY:: Payables query
+    getTotPayment: `
+      SELECT 
+        TYP,
+        ENTR_AS,
+        COUNT(ENTR_NO) AS TotalEntries,
+        SUM(DOC_AMT)   AS TotalAmount
+      FROM a_trn_recpmt t
+      WHERE 
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      GROUP BY TYP, ENTR_AS;
+    `,
+    getSummaryByTyp: `
+      SELECT
+        p.ACT_NM AS PartyName,
+        COUNT(t.ENTR_NO)   AS totalEntries,
+        SUM(t.DOC_AMT)     AS totalDOC_AMT
+      FROM a_trn_recpmt t
+      LEFT JOIN a_mst_act p ON t.PTY_CD = p.ACT_CD
+      WHERE
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      GROUP BY p.ACT_NM
+      ORDER BY p.ACT_NM;
+    `,
+    getSummaryDetailsByTyp: `
+      SELECT
+        t.ENTR_NO,
+        p.ACT_NM      AS PartyName,
+        t.ENTR_AS,
+        t.DOC_AMT,
+        t.TRN_DT
+      FROM a_trn_recpmt t
+      LEFT JOIN a_mst_act p ON t.PTY_CD = p.ACT_CD
+      WHERE
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND p.ACT_NM = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      ORDER BY t.ENTR_NO;
+    `,
+    getDetailsByTyp: `
+      SELECT
+        t.ENTR_NO,
+        p.ACT_NM      AS PartyName,
+        t.ENTR_AS,
+        t.DOC_AMT,
+        t.TRN_DT
+      FROM a_trn_recpmt t
+      LEFT JOIN a_mst_act p ON t.PTY_CD = p.ACT_CD
+      WHERE
+        t.CMP_CD IN (${codes})
+        AND t.TYP = ?
+        AND t.TRN_DT BETWEEN ? AND ?
+      ORDER BY t.ENTR_NO;
     `,
   };
 };

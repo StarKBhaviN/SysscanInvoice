@@ -3,6 +3,7 @@ import { useUserContext } from "@/context/userContext";
 import { useMyCompaniesQuery } from "@/hooks/queries/companies";
 import { usePaymentsByUserQuery } from "@/hooks/queries/payment";
 import { useSubscriptionByUserQuery } from "@/hooks/queries/subscription";
+import { useUsersListQuery } from "@/hooks/queries/users";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import React, { useState } from "react";
 import {
@@ -22,9 +23,10 @@ export default function Profile() {
   const userId = user?.adminRefID || 0;
   const { data: payments = [] } = usePaymentsByUserQuery(userId);
   const { data: subscription } = useSubscriptionByUserQuery(userId);
-
+  const { data: friends = [] } = useUsersListQuery();
   const [historyVisible, setHistoryVisible] = useState(false);
 
+  console.log("Frinends Data:", friends);
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -91,23 +93,23 @@ export default function Profile() {
 
       {/* Users Section */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Added Users (4/4)</Text>
+        <Text style={styles.cardTitle}>Added Users ({friends.length}/4)</Text>
         <Text style={styles.cardItem}>
           You can add only 4 users in your current plan.
         </Text>
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: "column",
             justifyContent: "space-between",
-            alignItems: "center",
             flexWrap: "wrap",
+            gap: 8,
           }}
         >
           <View style={styles.userRow}>
-            {[...Array(4)].map((_, i) => (
+            {friends.map((friend, i) => (
               <View key={i} style={styles.userItem}>
                 <View style={styles.avatar}></View>
-                <Text style={{ color: theme.subText }}>User</Text>
+                <Text style={{ color: theme.subText }}>{friend.username}</Text>
               </View>
             ))}
           </View>
@@ -251,6 +253,9 @@ function createStyles(
       borderWidth: 1,
       borderRadius: 20,
       borderColor: theme.icon,
+      maxWidth: 80,
+      alignItems: "center",
+      justifyContent: "center",
     },
     syncButton: {
       backgroundColor: theme.tint,
