@@ -20,7 +20,7 @@ export async function openDatabase(onProgress?: (progress: number) => void) {
   // Check existing DB
   if (await isDatabaseValid(dbPath)) {
     console.log("✅ Database exists and is valid.");
-    return SQLite.openDatabaseSync(DBName);
+    return SQLite.openDatabaseAsync(DBName, { useNewConnection: true });
   } else {
     console.warn("⚠ Database missing or invalid. Preparing fresh download...");
     await FileSystem.deleteAsync(dbPath, { idempotent: true });
@@ -77,7 +77,7 @@ export async function openDatabase(onProgress?: (progress: number) => void) {
   }
 
   console.log("✅ Database ready.");
-  return SQLite.openDatabaseSync(DBName);
+  return SQLite.openDatabaseAsync(DBName, { useNewConnection: true });
 }
 
 // --- Helper: Check DB validity by size and integrity ---
@@ -89,8 +89,10 @@ async function isDatabaseValid(path: string) {
 
   try {
     const dbName = path.split("/").pop()!;
-    const db = SQLite.openDatabaseSync(dbName);
-    const result = db.getFirstSync<{ integrity_check: string }>(
+    const db = await SQLite.openDatabaseAsync(dbName, {
+      useNewConnection: true,
+    });
+    const result = await db.getFirstAsync<{ integrity_check: string }>(
       "PRAGMA integrity_check;"
     );
     return result?.integrity_check === "ok";

@@ -1,8 +1,8 @@
 import PaymentHistoryModal from "@/components/PaymentHistoryModal";
 import { useUserContext } from "@/context/userContext";
-import { useMyCompaniesQuery } from "@/hooks/queries/companies";
 import { usePaymentsByUserQuery } from "@/hooks/queries/payment";
 import { useSubscriptionByUserQuery } from "@/hooks/queries/subscription";
+import { useUsersListQuery } from "@/hooks/queries/users";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import React, { useState } from "react";
 import {
@@ -18,12 +18,12 @@ export default function Profile() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const { user, logout } = useUserContext();
-  const { data: myCompanies = [] } = useMyCompaniesQuery();
+  const [historyVisible, setHistoryVisible] = useState(false);
+  // const { data: myCompanies = [] } = useMyCompaniesQuery();
   const userId = user?.adminRefID || 0;
   const { data: payments = [] } = usePaymentsByUserQuery(userId);
   const { data: subscription } = useSubscriptionByUserQuery(userId);
-
-  const [historyVisible, setHistoryVisible] = useState(false);
+  const { data: friends = [] } = useUsersListQuery();
 
   return (
     <ScrollView
@@ -50,7 +50,7 @@ export default function Profile() {
       </View>
 
       {/* Company Section */}
-      <View style={styles.card}>
+      {/* <View style={styles.card}>
         <Text style={styles.cardTitle}>Your Companies</Text>
         {myCompanies.map((company: any, index: number) => (
           <Text key={index} style={styles.cardItem}>
@@ -60,7 +60,7 @@ export default function Profile() {
         <TouchableOpacity style={styles.linkButton}>
           <Text style={styles.linkText}>Manage Companies</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Subscription Section */}
       <View style={styles.card}>
@@ -91,23 +91,23 @@ export default function Profile() {
 
       {/* Users Section */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Added Users (4/4)</Text>
+        <Text style={styles.cardTitle}>Added Users ({friends.length}/4)</Text>
         <Text style={styles.cardItem}>
           You can add only 4 users in your current plan.
         </Text>
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: "column",
             justifyContent: "space-between",
-            alignItems: "center",
             flexWrap: "wrap",
+            gap: 8,
           }}
         >
           <View style={styles.userRow}>
-            {[...Array(4)].map((_, i) => (
+            {friends.map((friend, i) => (
               <View key={i} style={styles.userItem}>
                 <View style={styles.avatar}></View>
-                <Text style={{ color: theme.subText }}>User</Text>
+                <Text style={{ color: theme.subText }}>{friend.username}</Text>
               </View>
             ))}
           </View>
@@ -118,12 +118,12 @@ export default function Profile() {
       </View>
 
       {/* Notifications Section */}
-      <View style={styles.card}>
+      {/* <View style={styles.card}>
         <Text style={styles.cardTitle}>Notifications</Text>
         <TouchableOpacity style={styles.linkButton}>
           <Text style={styles.linkText}>Manage Notifications</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Developer Contact Section */}
       <View style={styles.card}>
@@ -251,6 +251,9 @@ function createStyles(
       borderWidth: 1,
       borderRadius: 20,
       borderColor: theme.icon,
+      maxWidth: 80,
+      alignItems: "center",
+      justifyContent: "center",
     },
     syncButton: {
       backgroundColor: theme.tint,

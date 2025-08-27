@@ -4,7 +4,11 @@ import HomeSummarySkeleton from "@/components/ui/HomeSummarySkeleton";
 import { useCompanyContext } from "@/context/companyContext";
 import { displayConfig } from "@/context/displayConfig";
 import { useSQLite } from "@/context/SQLiteContext";
-import { useHomeDataQuery } from "@/hooks/useHomeDataQuery";
+import {
+  useHomeDataQuery,
+  usePayablesTotals,
+  useReceivablesTotals,
+} from "@/hooks/useHomeDataQuery";
 import { useThemeContext } from "@/hooks/useThemeContext";
 import { AllInOneRecord } from "@/types/home.types";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +27,11 @@ export default function Home() {
   const { selectedCompanies } = useCompanyContext();
   const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
 
+  const { data: recivables = [] } = useReceivablesTotals(
+    "2023-06-17",
+    "2025-06-17"
+  );
+  const { data: payables = [] } = usePayablesTotals("2023-06-17", "2025-06-17");
   const {
     data: homeData,
     isLoading: isFetching,
@@ -48,9 +57,18 @@ export default function Home() {
       let record: AllInOneRecord;
 
       if (config.type === "Receivables") {
-        record = { ...defaultRecord, TYP: config.name, "Sum(NET_AMT)": 1500 };
+        // take sum of all receivables
+        const total = (recivables ?? []).reduce(
+          (acc, row) => acc + (row.TotalAmount || 0),
+          0
+        );
+        record = { ...defaultRecord, TYP: config.name, "Sum(NET_AMT)": total };
       } else if (config.type === "Payables") {
-        record = { ...defaultRecord, TYP: config.name, "Sum(NET_AMT)": 500 };
+        const total = (payables ?? []).reduce(
+          (acc, row) => acc + (row.TotalAmount || 0),
+          0
+        );
+        record = { ...defaultRecord, TYP: config.name, "Sum(NET_AMT)": total };
       } else {
         record = dataMap.get(config.type) || {
           ...defaultRecord,
@@ -63,7 +81,7 @@ export default function Home() {
         data: record,
       };
     });
-  }, [homeData]);
+  }, [homeData, recivables, payables]);
 
   const prefetchAndNavigate = async (typ: string, name: string) => {
     if (!controllers) return;
@@ -74,6 +92,7 @@ export default function Home() {
       queryFn: () => controllers.Home.getDetailsByTyp(companyCodes, typ),
     });
 
+    console.log("Prefetched home details for:", typ, companyCodes);
     const nameForPath = name.replace(/\s*\(Gen\)\s*/g, "");
     const pathSegment = nameForPath.replace(/\s+/g, "");
 

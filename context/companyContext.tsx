@@ -33,6 +33,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (isSQLiteLoading) {
+      console.log("SQLite is loading...");
       return;
     }
 
@@ -62,6 +63,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         } else if (allCompaniesResult.length > 0) {
           setSelectedCompaniesState([allCompaniesResult[0]]);
         }
+        console.log("Company context initialized successfully.");
       } catch (err) {
         console.error("Failed to initialize company context:", err);
         setError(err as Error);

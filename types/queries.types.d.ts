@@ -13,9 +13,15 @@ export type PurchaseQueries = {
 };
 
 export type ReceivablesQueries = {
-  getHomeReceivables: string;
+  getTotReceived: string;
+  getReceivableSummaryByTyp: string;
+  getSummaryDetailsByTyp: string;
+  getDetailsByTyp: string;
 };
 
 export type PayablesQueries = {
-  getHomePayables: string;
+  getTotPayment: string;
+  getPayableSummaryByTyp: string;
+  getSummaryDetailsByTyp: string;
+  getDetailsByTyp: string;
 };

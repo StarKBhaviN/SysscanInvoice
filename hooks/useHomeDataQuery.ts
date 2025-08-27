@@ -26,8 +26,10 @@ export const useHomeDataQuery = () => {
     },
     enabled: !!controllers && companyCodes.length > 0,
     staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -49,8 +51,11 @@ export const useHomeDetailsQuery = (typ: string) => {
     },
 
     enabled: !!controllers && companyCodes.length > 0 && !!typ,
-
     staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -66,6 +71,11 @@ export const useDetailsSummary = (companyCodes, typ, controllers) => {
     },
 
     enabled: !!typ && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -88,7 +98,142 @@ export const useHomeDetails = (
         expandedParty
       );
     },
-
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     enabled: !!typ && !!expandedParty && companyCodes.length > 0,
+  });
+};
+
+export const useReceivablesTotals = (from: string, to: string) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
+
+  return useQuery({
+    queryKey: ["recTotals", companyCodes.sort(), from, to],
+    queryFn: () =>
+      controllers!.Receivables.getTotReceived(companyCodes, from, to),
+    enabled: !!controllers && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
+export const usePayablesTotals = (from: string, to: string) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
+
+  return useQuery({
+    queryKey: ["payTotals", companyCodes.sort(), from, to],
+    queryFn: () => controllers!.Payables.getTotPayment(companyCodes, from, to),
+    enabled: !!controllers && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
+// Summary (Party-wise)
+export const useReceivablesSummary = (from: string, to: string) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
+
+  return useQuery({
+    queryKey: ["recSummary", companyCodes.sort(), from, to],
+    queryFn: () =>
+      controllers!.Receivables.getReceivableSummaryByTyp(
+        companyCodes,
+        from,
+        to
+      ),
+    enabled: !!controllers && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
+export const usePayablesSummary = (from: string, to: string) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
+
+  return useQuery({
+    queryKey: ["paySummary", companyCodes.sort(), from, to],
+    queryFn: () =>
+      controllers!.Payables.getPayableSummaryByTyp(companyCodes, from, to),
+    enabled: !!controllers && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
+// Details (for expanded Party)
+export const useReceivablesDetails = (
+  partyName: string | null,
+  from: string,
+  to: string
+) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
+
+  return useQuery({
+    queryKey: ["recDetails", companyCodes.sort(), partyName, from, to],
+    queryFn: () =>
+      controllers!.Receivables.getSummaryDetailsByTyp(
+        companyCodes,
+        partyName!,
+        from,
+        to
+      ),
+    enabled: !!controllers && companyCodes.length > 0 && !!partyName,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
+export const usePayablesDetails = (
+  partyName: string | null,
+  from: string,
+  to: string
+) => {
+  const { controllers } = useSQLite();
+  const { selectedCompanies } = useCompanyContext();
+  const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
+
+  return useQuery({
+    queryKey: ["payDetails", companyCodes.sort(), partyName, from, to],
+    queryFn: () =>
+      controllers!.Payables.getSummaryDetailsByTyp(
+        companyCodes,
+        partyName!,
+        from,
+        to
+      ),
+    enabled: !!controllers && companyCodes.length > 0 && !!partyName,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
