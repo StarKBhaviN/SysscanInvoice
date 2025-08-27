@@ -28,6 +28,9 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const [controllers, setControllers] = useState<any>(null);
 
+  // asd
+
+  // TODO : Create a state while initializing database so that next time when app starts then it dont go for checking download just load and start the app
   useEffect(() => {
     const initializeDatabase = async () => {
       try {
@@ -54,7 +57,7 @@ export const SQLiteProvider: React.FC<SQLiteProviderProps> = ({ children }) => {
 
     return () => {
       if (db) {
-        db.closeSync();
+        db.closeAsync();
         console.log("Database connection closed");
       }
     };

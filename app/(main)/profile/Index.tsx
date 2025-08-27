@@ -1,6 +1,5 @@
 import PaymentHistoryModal from "@/components/PaymentHistoryModal";
 import { useUserContext } from "@/context/userContext";
-import { useMyCompaniesQuery } from "@/hooks/queries/companies";
 import { usePaymentsByUserQuery } from "@/hooks/queries/payment";
 import { useSubscriptionByUserQuery } from "@/hooks/queries/subscription";
 import { useUsersListQuery } from "@/hooks/queries/users";
@@ -19,14 +18,13 @@ export default function Profile() {
   const { theme, colorScheme } = useThemeContext();
   const styles = createStyles(theme, colorScheme);
   const { user, logout } = useUserContext();
-  const { data: myCompanies = [] } = useMyCompaniesQuery();
+  const [historyVisible, setHistoryVisible] = useState(false);
+  // const { data: myCompanies = [] } = useMyCompaniesQuery();
   const userId = user?.adminRefID || 0;
   const { data: payments = [] } = usePaymentsByUserQuery(userId);
   const { data: subscription } = useSubscriptionByUserQuery(userId);
   const { data: friends = [] } = useUsersListQuery();
-  const [historyVisible, setHistoryVisible] = useState(false);
 
-  console.log("Frinends Data:", friends);
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -52,7 +50,7 @@ export default function Profile() {
       </View>
 
       {/* Company Section */}
-      <View style={styles.card}>
+      {/* <View style={styles.card}>
         <Text style={styles.cardTitle}>Your Companies</Text>
         {myCompanies.map((company: any, index: number) => (
           <Text key={index} style={styles.cardItem}>
@@ -62,7 +60,7 @@ export default function Profile() {
         <TouchableOpacity style={styles.linkButton}>
           <Text style={styles.linkText}>Manage Companies</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Subscription Section */}
       <View style={styles.card}>
@@ -120,12 +118,12 @@ export default function Profile() {
       </View>
 
       {/* Notifications Section */}
-      <View style={styles.card}>
+      {/* <View style={styles.card}>
         <Text style={styles.cardTitle}>Notifications</Text>
         <TouchableOpacity style={styles.linkButton}>
           <Text style={styles.linkText}>Manage Notifications</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Developer Contact Section */}
       <View style={styles.card}>

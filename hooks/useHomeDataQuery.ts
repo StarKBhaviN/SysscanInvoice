@@ -26,8 +26,10 @@ export const useHomeDataQuery = () => {
     },
     enabled: !!controllers && companyCodes.length > 0,
     staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -49,8 +51,11 @@ export const useHomeDetailsQuery = (typ: string) => {
     },
 
     enabled: !!controllers && companyCodes.length > 0 && !!typ,
-
     staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -66,6 +71,11 @@ export const useDetailsSummary = (companyCodes, typ, controllers) => {
     },
 
     enabled: !!typ && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -88,7 +98,11 @@ export const useHomeDetails = (
         expandedParty
       );
     },
-
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     enabled: !!typ && !!expandedParty && companyCodes.length > 0,
   });
 };
@@ -104,6 +118,10 @@ export const useReceivablesTotals = (from: string, to: string) => {
       controllers!.Receivables.getTotReceived(companyCodes, from, to),
     enabled: !!controllers && companyCodes.length > 0,
     staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -117,6 +135,10 @@ export const usePayablesTotals = (from: string, to: string) => {
     queryFn: () => controllers!.Payables.getTotPayment(companyCodes, from, to),
     enabled: !!controllers && companyCodes.length > 0,
     staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -129,8 +151,17 @@ export const useReceivablesSummary = (from: string, to: string) => {
   return useQuery({
     queryKey: ["recSummary", companyCodes.sort(), from, to],
     queryFn: () =>
-      controllers!.Receivables.getSummaryByTyp(companyCodes, from, to),
+      controllers!.Receivables.getReceivableSummaryByTyp(
+        companyCodes,
+        from,
+        to
+      ),
     enabled: !!controllers && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -142,8 +173,13 @@ export const usePayablesSummary = (from: string, to: string) => {
   return useQuery({
     queryKey: ["paySummary", companyCodes.sort(), from, to],
     queryFn: () =>
-      controllers!.Payables.getSummaryByTyp(companyCodes, from, to),
+      controllers!.Payables.getPayableSummaryByTyp(companyCodes, from, to),
     enabled: !!controllers && companyCodes.length > 0,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -167,6 +203,11 @@ export const useReceivablesDetails = (
         to
       ),
     enabled: !!controllers && companyCodes.length > 0 && !!partyName,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
@@ -189,5 +230,10 @@ export const usePayablesDetails = (
         to
       ),
     enabled: !!controllers && companyCodes.length > 0 && !!partyName,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };

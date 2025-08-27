@@ -42,8 +42,8 @@ export default function SignupScreen() {
   const { mutateAsync: signUp, isPending } = useSignupMutation();
   const {
     mutateAsync: login,
-    isPending: isLoginPending,
-    isSuccess: isLoginSuccess,
+    // isPending: isLoginPending,
+    // isSuccess: isLoginSuccess,
   } = useLoginMutation();
   const { mutateAsync: paymentCheckout, isPending: isCheckoutPending } =
     useCheckoutMutation();
@@ -339,7 +339,7 @@ export default function SignupScreen() {
           )}
         </View>
 
-        {/* Navigation */}
+        {/* Back Navigation */}
         {step > 1 && step < steps.length - 1 && (
           <View style={styles.footer}>
             <TouchableOpacity style={styles.secondaryButton} onPress={prevStep}>

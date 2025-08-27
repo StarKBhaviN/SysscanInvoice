@@ -1,6 +1,6 @@
 import { useUserContext } from "@/context/userContext";
 import { useThemeContext } from "@/hooks/useThemeContext";
-import { Slot, usePathname, useRouter } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import { useEffect } from "react";
 import {
   Image,
@@ -20,7 +20,6 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 export default function AuthLayout() {
   const { theme, colorScheme } = useThemeContext();
   const { token, loading } = useUserContext();
-  const pathName = usePathname();
   const router = useRouter();
 
   const styles = createStyles(theme, colorScheme);
@@ -29,6 +28,7 @@ export default function AuthLayout() {
     if (!loading && token) {
       router.replace("/home");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, token]);
 
   return (
@@ -62,7 +62,7 @@ export default function AuthLayout() {
           <KeyboardAvoidingView
             style={styles.bottomBar}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0} // adjust if header overlaps
+            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
           >
             <Slot />
           </KeyboardAvoidingView>

@@ -24,7 +24,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Bridge app state to react-query focus state (for RN)
 function onAppStateChange(status: string) {
   focusManager.setFocused(status === "active");
 }

@@ -50,7 +50,8 @@ export const getHomeQueries = (
       GROUP BY
         p.ACT_NM
       ORDER BY
-        p.ACT_NM;
+        p.ACT_NM
+      LIMIT 500 OFFSET 0;
     `,
     getSummaryDetailsByTyp: `
       SELECT
@@ -73,7 +74,8 @@ export const getHomeQueries = (
         AND t1.TYP = ?
         AND p.ACT_NM = ?
       ORDER BY
-        t1.BILL_NO_SNC_N;
+        t1.BILL_NO_SNC_N
+      LIMIT 500 OFFSET 0;
     `,
     getDetailsByTyp: `
       SELECT
@@ -95,7 +97,8 @@ export const getHomeQueries = (
         AND t1.BILL_TYP IN ('FINAL')
         AND t1.TYP = ?
       ORDER BY
-        t1.BILL_NO_SNC_N;
+        t1.BILL_NO_SNC_N
+      LIMIT 500 OFFSET 0;
     `,
   };
 };
@@ -119,11 +122,12 @@ export const getReceivablesQuery = (
         t.CMP_CD IN (${codes})
         AND t.TYP = ?
         AND t.TRN_DT BETWEEN ? AND ?
-      GROUP BY TYP, ENTR_AS;
+      GROUP BY TYP, ENTR_AS
+      LIMIT 500 OFFSET 0;
     `,
 
     // Summary by Party for a TYP in range
-    getSummaryByTyp: `
+    getReceivableSummaryByTyp: `
       SELECT
         p.ACT_NM AS PartyName,
         COUNT(t.ENTR_NO)   AS totalEntries,
@@ -135,7 +139,8 @@ export const getReceivablesQuery = (
         AND t.TYP = ?
         AND t.TRN_DT BETWEEN ? AND ?
       GROUP BY p.ACT_NM
-      ORDER BY p.ACT_NM;
+      ORDER BY p.ACT_NM
+      LIMIT 500 OFFSET 0;
     `,
 
     // Line items for a specific Party for a TYP in range
@@ -153,7 +158,8 @@ export const getReceivablesQuery = (
         AND t.TYP = ?
         AND p.ACT_NM = ?
         AND t.TRN_DT BETWEEN ? AND ?
-      ORDER BY t.ENTR_NO;
+      ORDER BY t.ENTR_NO
+      LIMIT 500 OFFSET 0;
     `,
 
     // All line items for a TYP in range
@@ -170,7 +176,8 @@ export const getReceivablesQuery = (
         t.CMP_CD IN (${codes})
         AND t.TYP = ?
         AND t.TRN_DT BETWEEN ? AND ?
-      ORDER BY t.ENTR_NO;
+      ORDER BY t.ENTR_NO
+      LIMIT 500 OFFSET 0;
     `,
   };
 };
@@ -194,9 +201,10 @@ export const getPayablesQuery = (
         t.CMP_CD IN (${codes})
         AND t.TYP = ?
         AND t.TRN_DT BETWEEN ? AND ?
-      GROUP BY TYP, ENTR_AS;
+      GROUP BY TYP, ENTR_AS
+      LIMIT 500 OFFSET 0;
     `,
-    getSummaryByTyp: `
+    getPayableSummaryByTyp: `
       SELECT
         p.ACT_NM AS PartyName,
         COUNT(t.ENTR_NO)   AS totalEntries,
@@ -208,7 +216,8 @@ export const getPayablesQuery = (
         AND t.TYP = ?
         AND t.TRN_DT BETWEEN ? AND ?
       GROUP BY p.ACT_NM
-      ORDER BY p.ACT_NM;
+      ORDER BY p.ACT_NM
+      LIMIT 500 OFFSET 0;
     `,
     getSummaryDetailsByTyp: `
       SELECT
@@ -224,7 +233,8 @@ export const getPayablesQuery = (
         AND t.TYP = ?
         AND p.ACT_NM = ?
         AND t.TRN_DT BETWEEN ? AND ?
-      ORDER BY t.ENTR_NO;
+      ORDER BY t.ENTR_NO
+      LIMIT 500 OFFSET 0;
     `,
     getDetailsByTyp: `
       SELECT
@@ -239,7 +249,8 @@ export const getPayablesQuery = (
         t.CMP_CD IN (${codes})
         AND t.TYP = ?
         AND t.TRN_DT BETWEEN ? AND ?
-      ORDER BY t.ENTR_NO;
+      ORDER BY t.ENTR_NO
+      LIMIT 500 OFFSET 0;
     `,
   };
 };

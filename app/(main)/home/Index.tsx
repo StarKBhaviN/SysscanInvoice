@@ -27,9 +27,11 @@ export default function Home() {
   const { selectedCompanies } = useCompanyContext();
   const companyCodes = selectedCompanies.map((c) => c.CMP_CD);
 
-  const { data: recivables } = useReceivablesTotals("2023-06-17", "2025-06-17");
-  const { data: payables } = usePayablesTotals("2023-06-17", "2025-06-17");
-
+  const { data: recivables = [] } = useReceivablesTotals(
+    "2023-06-17",
+    "2025-06-17"
+  );
+  const { data: payables = [] } = usePayablesTotals("2023-06-17", "2025-06-17");
   const {
     data: homeData,
     isLoading: isFetching,
@@ -90,6 +92,7 @@ export default function Home() {
       queryFn: () => controllers.Home.getDetailsByTyp(companyCodes, typ),
     });
 
+    console.log("Prefetched home details for:", typ, companyCodes);
     const nameForPath = name.replace(/\s*\(Gen\)\s*/g, "");
     const pathSegment = nameForPath.replace(/\s+/g, "");
 
