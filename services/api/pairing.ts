@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import axiosInstance from "@/utils/axiosConfig";
 
 export type Pairing = {
   id: number;
@@ -10,7 +10,9 @@ export type Pairing = {
 
 export const PairingAPI = {
   create: async (): Promise<{ code: string }> => {
-    const { data } = await axios.post<{ code: string }>("/pairing/create");
+    const { data } = await axiosInstance.post<{ code: string }>(
+      "/pairing/create"
+    );
     return data;
   },
 
@@ -18,7 +20,7 @@ export const PairingAPI = {
     code: string;
     desktopClientId: string;
   }): Promise<{ success: boolean }> => {
-    const { data } = await axios.post<{ success: boolean }>(
+    const { data } = await axiosInstance.post<{ success: boolean }>(
       "/pairing/activate",
       payload
     );
@@ -26,7 +28,7 @@ export const PairingAPI = {
   },
 
   list: async (): Promise<Pairing[]> => {
-    const { data } = await axios.get<Pairing[]>("/pairing");
+    const { data } = await axiosInstance.get<Pairing[]>("/pairing");
     return data;
   },
 };

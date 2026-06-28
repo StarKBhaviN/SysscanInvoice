@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import axiosInstance from "@/utils/axiosConfig";
 
 export type RegisterSQLiteRequest = {
   provider: "url";
@@ -15,7 +15,7 @@ export const SQLiteAPI = {
   register: async (
     payload: RegisterSQLiteRequest
   ): Promise<{ success: boolean }> => {
-    const { data } = await axios.post<{ success: boolean }>(
+    const { data } = await axiosInstance.post<{ success: boolean }>(
       "/sqlite/register",
       payload
     );
@@ -23,12 +23,14 @@ export const SQLiteAPI = {
   },
 
   sync: async (): Promise<{ success: boolean }> => {
-    const { data } = await axios.post<{ success: boolean }>("/sqlite/sync");
+    const { data } = await axiosInstance.post<{ success: boolean }>(
+      "/sqlite/sync"
+    );
     return data;
   },
 
   meta: async (): Promise<SQLiteMeta> => {
-    const { data } = await axios.get<SQLiteMeta>("/sqlite/meta");
+    const { data } = await axiosInstance.get<SQLiteMeta>("/sqlite/meta");
     return data;
   },
 };

@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import axiosInstance from "@/utils/axiosConfig";
 
 export type Subscription = {
   id: number;
@@ -11,17 +11,22 @@ export type Subscription = {
 
 export const SubscriptionAPI = {
   list: async (): Promise<Subscription[]> => {
-    const { data } = await axios.get<Subscription[]>("/subscription");
+    const { data } = await axiosInstance.get<Subscription[]>("/subscription");
     return data;
   },
 
   getByUser: async (userID: number): Promise<Subscription> => {
-    const { data } = await axios.get<Subscription>(`/subscription/${userID}`);
+    const { data } = await axiosInstance.get<Subscription>(
+      `/subscription/${userID}`
+    );
     return data;
   },
 
   create: async (payload: Omit<Subscription, "id">): Promise<Subscription> => {
-    const { data } = await axios.post<Subscription>("/subscription", payload);
+    const { data } = await axiosInstance.post<Subscription>(
+      "/subscription",
+      payload
+    );
     return data;
   },
 };

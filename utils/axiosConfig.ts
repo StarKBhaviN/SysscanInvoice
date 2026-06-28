@@ -2,8 +2,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const instance = axios.create({
-  baseURL: "http://192.168.1.15:3000", // <--- Your local IP
+const axiosInstance = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",
@@ -11,7 +11,7 @@ const instance = axios.create({
 });
 
 // Attach Authorization header from AsyncStorage for every request
-instance.interceptors.request.use(async (config) => {
+axiosInstance.interceptors.request.use(async (config) => {
   try {
     const token = await AsyncStorage.getItem("Invoice_Token");
     if (token && config && config.headers && !config.headers["Authorization"]) {
@@ -22,9 +22,9 @@ instance.interceptors.request.use(async (config) => {
 });
 
 // Basic response interceptor stub (kept minimal; surface errors to caller)
-instance.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => Promise.reject(error)
 );
 
-export default instance;
+export default axiosInstance;

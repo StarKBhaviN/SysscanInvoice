@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import axiosInstance from "@/utils/axiosConfig";
 
 export type Company = {
   id: number;
@@ -16,17 +16,17 @@ export type CreateCompanyRequest = Omit<Company, "id">;
 
 export const CompaniesAPI = {
   list: async (): Promise<Company[]> => {
-    const { data } = await axios.get<Company[]>("/companies");
+    const { data } = await axiosInstance.get<Company[]>("/companies");
     return data;
   },
 
   listMine: async (): Promise<Company[]> => {
-    const { data } = await axios.get<Company[]>("/companies/me");
+    const { data } = await axiosInstance.get<Company[]>("/companies/me");
     return data;
   },
 
   create: async (payload: CreateCompanyRequest): Promise<Company> => {
-    const { data } = await axios.post<Company>("/companies", payload);
+    const { data } = await axiosInstance.post<Company>("/companies", payload);
     return data;
   },
 };

@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import axiosInstance from "@/utils/axiosConfig";
 
 export type Role = "OWNER" | "ADMIN" | "USER";
 
@@ -33,38 +33,48 @@ export type AddSubUserRequest = SignupRequest;
 
 export const UsersAPI = {
   signup: async (payload: SignupRequest): Promise<User> => {
-    const { data } = await axios.post<User>("/users/signup", payload);
+    console.log("User signup payload:", payload);
+
+    const { data } = await axiosInstance.post<User>("/users/signup", payload);
+    console.log("User signup response:", data);
+
     return data;
   },
 
   login: async (payload: LoginRequest): Promise<LoginResponse> => {
-    const { data } = await axios.post<LoginResponse>("/users/login", payload);
-    console.log("Login response:", data);
+    const { data } = await axiosInstance.post<LoginResponse>(
+      "/users/login",
+      payload
+    );
     return data;
   },
 
   refreshToken: async (): Promise<LoginResponse> => {
-    const { data } = await axios.post<LoginResponse>("/users/refresh-token");
+    const { data } = await axiosInstance.post<LoginResponse>(
+      "/users/refresh-token"
+    );
     return data;
   },
 
   profile: async (): Promise<User> => {
-    const { data } = await axios.get<User>("/users/profile");
+    const { data } = await axiosInstance.get<User>("/users/profile");
     return data;
   },
 
   list: async (): Promise<User[]> => {
-    const { data } = await axios.get<User[]>("/users");
+    const { data } = await axiosInstance.get<User[]>("/users");
     return data;
   },
 
   addSubUser: async (payload: AddSubUserRequest): Promise<User> => {
-    const { data } = await axios.post<User>("/users/add", payload);
+    const { data } = await axiosInstance.post<User>("/users/add", payload);
     return data;
   },
 
   delete: async (id: number): Promise<{ success: boolean }> => {
-    const { data } = await axios.delete<{ success: boolean }>(`/users/${id}`);
+    const { data } = await axiosInstance.delete<{ success: boolean }>(
+      `/users/${id}`
+    );
     return data;
   },
 
@@ -80,7 +90,7 @@ export const UsersAPI = {
       name: file.name,
       type: file.type,
     });
-    const { data } = await axios.post<User>("/users/photo", form, {
+    const { data } = await axiosInstance.post<User>("/users/photo", form, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data;

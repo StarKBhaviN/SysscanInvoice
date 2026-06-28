@@ -1,4 +1,4 @@
-import axios from "@/utils/axiosConfig";
+import axiosInstance from "@/utils/axiosConfig";
 
 export type Payment = {
   id: number;
@@ -21,22 +21,24 @@ export type CheckoutResponse = {
 
 export const PaymentAPI = {
   list: async (): Promise<Payment[]> => {
-    const { data } = await axios.get<Payment[]>("/payment");
+    const { data } = await axiosInstance.get<Payment[]>("/payment");
     return data;
   },
 
   listByUser: async (userID: number): Promise<Payment[]> => {
-    const { data } = await axios.get<Payment[]>(`/payment/${userID}`);
+    const { data } = await axiosInstance.get<Payment[]>(`/payment/${userID}`);
     return data;
   },
 
   create: async (payload: Omit<Payment, "id">): Promise<Payment> => {
-    const { data } = await axios.post<Payment>("/payment", payload);
+    const { data } = await axiosInstance.post<Payment>("/payment", payload);
     return data;
   },
 
   checkout: async (payload: CheckoutRequest): Promise<CheckoutResponse> => {
-    const { data } = await axios.post<CheckoutResponse>(
+    console.log("Payload : ", payload, axiosInstance.defaults.baseURL);
+
+    const { data } = await axiosInstance.post<CheckoutResponse>(
       "/payment/checkout",
       payload
     );
@@ -47,7 +49,7 @@ export const PaymentAPI = {
     event: string;
     data: { userId: number; amount: number; status: string };
   }): Promise<{ rolePromoted?: boolean }> => {
-    const { data } = await axios.post("/payment/webhook", payload);
+    const { data } = await axiosInstance.post("/payment/webhook", payload);
     return data;
   },
 };

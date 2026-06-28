@@ -1,10 +1,7 @@
 import AddUsersModal from "@/components/AddUserModal";
 import PlanCard from "@/components/ui/PlanCard";
 import { useCreatePairingMutation } from "@/hooks/queries/pairing";
-import {
-  useCheckoutMutation,
-  usePaymentWebhookMutation,
-} from "@/hooks/queries/payment";
+import { useCheckoutMutation } from "@/hooks/queries/payment";
 import {
   useLoginMutation,
   useRefreshTokenMutation,
@@ -13,10 +10,11 @@ import {
 import { useThemeContext } from "@/hooks/useThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   StyleSheet,
   Text,
@@ -24,6 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { WebView } from "react-native-webview";
 
 const steps = [
   "Basic Details",
@@ -40,15 +39,9 @@ export default function SignupScreen() {
 
   const router = useRouter();
   const { mutateAsync: signUp, isPending } = useSignupMutation();
-  const {
-    mutateAsync: login,
-    // isPending: isLoginPending,
-    // isSuccess: isLoginSuccess,
-  } = useLoginMutation();
+  const { mutateAsync: login } = useLoginMutation();
   const { mutateAsync: paymentCheckout, isPending: isCheckoutPending } =
     useCheckoutMutation();
-  const { mutateAsync: paymentWebhook, isPending: isWebhookPending } =
-    usePaymentWebhookMutation();
   const { mutateAsync: refreshToken, isPending: isRefreshPending } =
     useRefreshTokenMutation();
   const { mutateAsync: createPairing, isPending: isPairingPending } =
@@ -61,12 +54,167 @@ export default function SignupScreen() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [plan, setPlan] = useState("");
   const [pairingCode, setPairingCode] = useState("");
+  const [expiresIn, setExpiresIn] = useState<number | null>(null);
+  const [isPaired, setIsPaired] = useState(false);
 
   const [userData, setUserData] = useState<{
     id: number;
     email: string;
   } | null>(null);
   const [currentToken, setCurrentToken] = useState<string | null>("");
+
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [showWebView, setShowWebView] = useState(false);
+
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const pairingCheckRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startCountdown = (expiryTime: string) => {
+    const expiry = new Date(expiryTime).getTime();
+    const now = Date.now();
+    const diffSeconds = Math.floor((expiry - now) / 1000);
+    setExpiresIn(diffSeconds);
+
+    if (countdownRef.current) clearInterval(countdownRef.current);
+
+    countdownRef.current = setInterval(() => {
+      setExpiresIn((prev) => {
+        if (prev && prev > 0) return prev - 1;
+
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        generatePairingCode(); // auto-generate new code
+        return 0;
+      });
+    }, 1000);
+  };
+
+  /** ---------------- Pairing Code Generation ---------------- */
+  const generatePairingCode = async () => {
+    try {
+      const pairingRes = await createPairing();
+      if (!pairingRes?.code || !pairingRes?.expiresAt) {
+        throw new Error("Invalid pairing response");
+      }
+      setPairingCode(pairingRes.code);
+      startCountdown(pairingRes.expiresAt);
+    } catch (err) {
+      console.error("Error generating pairing code:", err);
+      Alert.alert("Error", "Failed to generate pairing code. Try again.");
+    }
+  };
+
+  /** ---------------- Signup Flow ---------------- */
+  const handleSignup = async () => {
+    try {
+      const signUpRes = await signUp({
+        username,
+        email,
+        password,
+        phoneNumber,
+      });
+      const loginRes = await login({ email, password });
+
+      const token = loginRes?.accessToken;
+      if (!token) throw new Error("Login failed: No token received");
+
+      setCurrentToken(token);
+      await AsyncStorage.setItem("Invoice_Token", token);
+
+      setUserData({ id: signUpRes.id, email: signUpRes.email });
+      nextStep();
+    } catch (err) {
+      console.error("Signup error:", err);
+      Alert.alert("Signup failed", "Please check your details and try again.");
+    }
+  };
+
+  /** ---------------- Payment Flow ---------------- */
+  const handlePayment = async () => {
+    try {
+      if (!userData || !currentToken) throw new Error("User data not found.");
+
+      const checkoutRes = await paymentCheckout({
+        amount: plan === "2" ? 199 : 349,
+        provider: "cashfree",
+      });
+
+      const { checkoutUrl, orderId } = checkoutRes;
+      setCheckoutUrl(checkoutUrl);
+      setShowWebView(true);
+
+      const checkPaymentStatus = async () => {
+        try {
+          const res = await fetch(
+            `${process.env.EXPO_PUBLIC_API_URL}payment/status?order_id=${orderId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${currentToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const data = await res.json();
+          return data?.status || "pending";
+        } catch {
+          return "pending";
+        }
+      };
+
+      const intervalId = setInterval(async () => {
+        const status = await checkPaymentStatus();
+
+        if (status === "succeeded") {
+          clearInterval(intervalId);
+          setShowWebView(false);
+
+          const refreshRes = await refreshToken();
+          if (refreshRes?.accessToken) {
+            setCurrentToken(refreshRes.accessToken);
+            await AsyncStorage.setItem("Invoice_Token", refreshRes.accessToken);
+          }
+
+          await generatePairingCode();
+          nextStep();
+        } else if (status === "failed") {
+          clearInterval(intervalId);
+          setShowWebView(false);
+          Alert.alert("Payment failed", "Please try again.");
+        }
+      }, 3000);
+    } catch (error) {
+      console.error("Payment error:", error);
+      Alert.alert("Error", "Payment initiation failed.");
+    }
+  };
+
+  /** ---------------- Pairing Status Polling ---------------- */
+  useEffect(() => {
+    if (!pairingCode) return; // avoid checking when no code
+
+    if (pairingCheckRef.current) clearInterval(pairingCheckRef.current);
+
+    pairingCheckRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}pairing/status/${pairingCode}`
+        );
+        const data = await res.json();
+
+        if (data?.isActive) {
+          setIsPaired(true);
+          clearInterval(pairingCheckRef.current!);
+          nextStep();
+        }
+      } catch {
+        // suppress logs to avoid spam
+      }
+    }, 3000);
+
+    return () => {
+      if (pairingCheckRef.current) clearInterval(pairingCheckRef.current);
+    };
+  }, [pairingCode]);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -79,83 +227,54 @@ export default function SignupScreen() {
     checkToken();
   }, []);
 
-  const nextStep = () =>
-    setStep((prev) => Math.min(prev + 1, steps.length - 1));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
-
-  const handleSignup = async () => {
-    const signUpRes = await signUp({ username, email, password, phoneNumber });
-    const loginRes = await login({ email, password });
-    const token = loginRes.accessToken;
-    setCurrentToken(token);
-    await AsyncStorage.setItem("Invoice_Token", token);
-    setUserData({ id: signUpRes.id, email: signUpRes.email });
-
-    nextStep();
+  const nextStep = async () => {
+    setStep((prev) => {
+      const newStep = Math.min(prev + 1, steps.length - 1);
+      AsyncStorage.setItem("Signup_Step", String(newStep));
+      return newStep;
+    });
   };
 
-  const handlePayment = async () => {
-    try {
-      if (!userData || !currentToken) {
-        Alert.alert("Error", "User data not found. Please restart signup.");
-        return;
-      }
-
-      // Step 1: Initiate checkout
-      const checkoutRes = await paymentCheckout({
-        amount: plan === "2" ? 199 : 349,
-        provider: "stripe", // or your payment provider
-      });
-
-      console.log("Checkout initiated:", checkoutRes);
-
-      // Step 2: Simulate webhook (in production, this would be called by payment provider)
-      const webhookRes = await paymentWebhook({
-        event: "payment.succeeded",
-        data: {
-          userId: userData.id,
-          amount: plan === "2" ? 199 : 349,
-          status: "succeeded",
-        },
-      });
-
-      console.log("Webhook processed:", webhookRes);
-
-      // Step 3: Refresh token to get updated role (ADMIN)
-      const refreshRes = await refreshToken();
-      if (refreshRes.accessToken) {
-        setCurrentToken(refreshRes.accessToken);
-        await AsyncStorage.setItem("Invoice_Token", refreshRes.accessToken);
-        console.log("Token refreshed with ADMIN role");
-      }
-
-      console.log("Payment Success, role upgraded to ADMIN");
-      nextStep();
-    } catch (error) {
-      console.error("Payment error:", error);
-      Alert.alert("Error", "Payment failed. Please try again.");
-    }
+  const prevStep = async () => {
+    setStep((prev) => {
+      const newStep = Math.max(prev - 1, 0);
+      AsyncStorage.setItem("Signup_Step", String(newStep));
+      return newStep;
+    });
   };
 
-  const handlePairing = async () => {
-    try {
-      if (pairingCode.trim()) {
-        // Create pairing code
-        const pairingRes = await createPairing();
-        console.log("Pairing code created:", pairingRes);
-        // In a real app, you'd use the pairingCode entered by user to activate
-      }
-      nextStep();
-    } catch (error) {
-      console.error("Pairing error:", error);
-      // Continue anyway since pairing is optional
-      nextStep();
-    }
-  };
+  useEffect(() => {
+    const checkProgress = async () => {
+      const storedToken = await AsyncStorage.getItem("Invoice_Token");
+      const savedStep = await AsyncStorage.getItem("Signup_Step");
 
-  const handleFinish = () => {
+      if (storedToken) {
+        setCurrentToken(storedToken);
+
+        if (savedStep !== null) {
+          setStep(Number(savedStep));
+        } else {
+          setStep(1); // start after signup if token exists but step missing
+        }
+      } else {
+        setStep(0); // no token, start fresh
+      }
+    };
+
+    checkProgress();
+  }, []);
+
+  const handleFinish = async () => {
+    await AsyncStorage.removeItem("Signup_Step");
     router.replace("/home");
   };
+
+  useEffect(() => {
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+      if (pairingCheckRef.current) clearInterval(pairingCheckRef.current);
+    };
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -265,12 +384,10 @@ export default function SignupScreen() {
               <TouchableOpacity
                 style={[styles.primaryButton]}
                 onPress={handlePayment}
-                disabled={
-                  isCheckoutPending || isWebhookPending || isRefreshPending
-                }
+                disabled={isCheckoutPending || isRefreshPending}
               >
                 <Text style={styles.primaryButtonText}>
-                  {isCheckoutPending || isWebhookPending || isRefreshPending
+                  {isCheckoutPending || isRefreshPending
                     ? "Processing..."
                     : "Pay & Continue"}
                 </Text>
@@ -281,22 +398,27 @@ export default function SignupScreen() {
           {step === 3 && (
             <>
               <Text style={styles.heading}>Pair Desktop App</Text>
-              <TextInput
-                placeholder="Enter Pairing Code"
-                style={styles.input}
-                value={pairingCode}
-                onChangeText={setPairingCode}
-                placeholderTextColor={theme.placeholderText}
-              />
-              <TouchableOpacity
-                style={[styles.primaryButton]}
-                onPress={handlePairing}
-                disabled={isPairingPending}
-              >
-                <Text style={styles.primaryButtonText}>
-                  {isPairingPending ? "Pairing..." : "Continue"}
-                </Text>
-              </TouchableOpacity>
+              {pairingCode ? (
+                <View style={{ alignItems: "center", marginBottom: 16 }}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: "bold",
+                      color: theme.headText,
+                    }}
+                  >
+                    Code: {pairingCode}
+                  </Text>
+                  {expiresIn !== null && (
+                    <Text style={{ fontSize: 14, color: theme.subText }}>
+                      Expires in {expiresIn} sec
+                    </Text>
+                  )}
+                </View>
+              ) : (
+                <Text style={styles.subText}>Generating code...</Text>
+              )}
+
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={nextStep}
@@ -339,8 +461,30 @@ export default function SignupScreen() {
           )}
         </View>
 
+        {showWebView && checkoutUrl && (
+          <Modal visible={showWebView} animationType="slide">
+            <WebView
+              source={{ uri: checkoutUrl }}
+              onNavigationStateChange={(navState) => {
+                if (navState.url.startsWith("myapp://payment-success")) {
+                  alert("Payment successful!");
+                  setShowWebView(false);
+                  nextStep(); // move to next step
+                }
+                if (navState.url.startsWith("myapp://payment-failed")) {
+                  alert("Payment failed. Please try again.");
+                  setShowWebView(false);
+                  // optionally let user retry
+                }
+              }}
+            />
+            <TouchableOpacity onPress={() => setShowWebView(false)}>
+              <Text style={{ textAlign: "center", padding: 10 }}>Close</Text>
+            </TouchableOpacity>
+          </Modal>
+        )}
         {/* Back Navigation */}
-        {step > 1 && step < steps.length - 1 && (
+        {step > 1 && step !== 3 && step < steps.length - 1 && !isPaired && (
           <View style={styles.footer}>
             <TouchableOpacity style={styles.secondaryButton} onPress={prevStep}>
               <Text style={styles.secondaryButtonText}>Back</Text>
